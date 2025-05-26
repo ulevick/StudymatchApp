@@ -7,19 +7,19 @@ import { UserContext } from '../contexts/UserContext';
 import { authInstance, db } from '../services/firebase';
 import { doc, setDoc } from '@react-native-firebase/firestore';
 
-// --- Mock out all native/3rd‑party deps ---
+// --- Mock out all native/3rd-party deps ---
 jest.mock('@ptomasroos/react-native-multi-slider', () => {
   const React = require('react');
   const { TouchableOpacity, Text } = require('react-native');
   return ({ values, onValuesChange, testID }) => (
-    <TouchableOpacity
-      testID={testID || `multi-slider-${values.join('-')}`}
-      onPress={() => {
-        onValuesChange(values.map(v => v + 1)); // bump every value by 1
-      }}
-    >
-      <Text>Slider</Text>
-    </TouchableOpacity>
+      <TouchableOpacity
+          testID={testID || `multi-slider-${values.join('-')}`}
+          onPress={() => {
+            onValuesChange(values.map(v => v + 1)); // bump every value by 1
+          }}
+      >
+        <Text>Slider</Text>
+      </TouchableOpacity>
   );
 });
 
@@ -29,17 +29,17 @@ jest.mock('../components/CustomDropdown', () => {
   const React = require('react');
   const { TouchableOpacity, Text } = require('react-native');
   return ({ data, selected, label, onSelect, disabled }) => (
-    <TouchableOpacity
-      testID={`dropdown-${label || 'Rodyti tik'}-${selected}`}
-      disabled={disabled}
-      onPress={() => {
-        if (!disabled && data && data.length > 1) {
-          onSelect(data[1]);
-        }
-      }}
-    >
-      <Text>{selected}</Text>
-    </TouchableOpacity>
+      <TouchableOpacity
+          testID={`dropdown-${label || 'Rodyti tik'}-${selected}`}
+          disabled={disabled}
+          onPress={() => {
+            if (!disabled && data && data.length > 1) {
+              onSelect(data[1]);
+            }
+          }}
+      >
+        <Text>{selected}</Text>
+      </TouchableOpacity>
   );
 });
 
@@ -88,20 +88,27 @@ jest.mock('@react-native-firebase/firestore', () => ({
 
 describe('Filter screen', () => {
   let navigation;
+  let setUserData;
 
   beforeEach(() => {
     navigation = { goBack: jest.fn() };
+    // stub’as, kurį tiesiog perduosime context’ui
+    setUserData = jest.fn();
     doc.mockClear();
     setDoc.mockClear();
     authInstance.currentUser = null;
   });
 
-  it('renders default UI correctly', () => {
-    const { getByText, queryByTestId, getAllByText } = render(
-      <UserContext.Provider value={{ userData: {} }}>
-        <Filter navigation={navigation} />
-      </UserContext.Provider>
+  function renderFilter(userData = {}) {
+    return render(
+        <UserContext.Provider value={{ userData, setUserData }}>
+          <Filter navigation={navigation} />
+        </UserContext.Provider>
     );
+  }
+
+  it('renders default UI correctly', () => {
+    const { getByText, queryByTestId, getAllByText } = renderFilter();
 
     // Header
     getByText('Filtro nustatymai');
@@ -118,58 +125,48 @@ describe('Filter screen', () => {
   });
 
   it('goes back without saving if no userId', async () => {
-    const { getByTestId } = render(
-      <UserContext.Provider value={{ userData: {} }}>
-        <Filter navigation={navigation} />
-      </UserContext.Provider>
-    );
+    const { getByTestId } = renderFilter();
 
     fireEvent.press(getByTestId('back-button'));
     await waitFor(() => expect(navigation.goBack).toHaveBeenCalled());
     expect(setDoc).not.toHaveBeenCalled();
+    expect(doc).not.toHaveBeenCalled();
   });
 
   it('saves filter when userId exists and then goes back', async () => {
     authInstance.currentUser = { uid: 'u123' };
-
-    const { getByTestId } = render(
-      <UserContext.Provider value={{ userData: {} }}>
-        <Filter navigation={navigation} />
-      </UserContext.Provider>
-    );
+    const { getByTestId } = renderFilter();
 
     fireEvent.press(getByTestId('back-button'));
 
     await waitFor(() => {
+      // doc turi būti iškviestas taip:
       expect(doc).toHaveBeenCalledWith('mockDb', 'users', 'u123');
+      // setDoc turi gauti to, ką doc() sugrąžina (undefined mūsų moke)
       expect(setDoc).toHaveBeenCalledWith(
-        undefined, // our mock doc() returns undefined
-        {
-          filter: {
-            filterGender: null,
-            filterAgeMin: 18,
-            filterAgeMax: 50,
-            filterDistanceKm: null,
-            filterUniversity: null,
-            filterLevel: null,
-            filterFaculty: null,
-            filterStudyProgram: null,
-            filterCourse: null,
-            filterPreferences: [],
+          undefined,
+          {
+            filter: {
+              filterGender: null,
+              filterAgeMin: 18,
+              filterAgeMax: 50,
+              filterDistanceKm: null,
+              filterUniversity: null,
+              filterLevel: null,
+              filterFaculty: null,
+              filterStudyProgram: null,
+              filterCourse: null,
+              filterPreferences: [],
+            },
           },
-        },
-        { merge: true }
+          { merge: true }
       );
       expect(navigation.goBack).toHaveBeenCalled();
     });
   });
 
   it('updates age and distance sliders and can reset distance', () => {
-    const { getByTestId, getByText, getAllByText } = render(
-      <UserContext.Provider value={{ userData: {} }}>
-        <Filter navigation={navigation} />
-      </UserContext.Provider>
-    );
+    const { getByTestId, getByText, getAllByText } = renderFilter();
 
     // Age slider 18-50 → press → values become [19,51]
     fireEvent.press(getByTestId('multi-slider-18-50'));
@@ -187,11 +184,7 @@ describe('Filter screen', () => {
   });
 
   it('cascades through all dropdowns', () => {
-    const { getByTestId } = render(
-      <UserContext.Provider value={{ userData: {} }}>
-        <Filter navigation={navigation} />
-      </UserContext.Provider>
-    );
+    const { getByTestId } = renderFilter();
 
     // University
     fireEvent.press(getByTestId('dropdown-Universitetas-Visų universitetų'));
@@ -216,11 +209,7 @@ describe('Filter screen', () => {
 
   it('opens preferences modal, toggles an item, and closes it', async () => {
     authInstance.currentUser = { uid: 'u123' };
-    const { getByTestId, getByText, queryByText } = render(
-      <UserContext.Provider value={{ userData: {} }}>
-        <Filter navigation={navigation} />
-      </UserContext.Provider>
-    );
+    const { getByTestId, getByText, queryByText } = renderFilter();
 
     // Open modal
     fireEvent.press(getByTestId('open-modal-button'));
@@ -253,11 +242,7 @@ describe('Filter screen', () => {
       filterCourse: 'Course1',
       filterPreferences: ['Item2'],
     };
-    const { getByText, getByTestId, queryByTestId } = render(
-      <UserContext.Provider value={{ userData: { filter: preset } }}>
-        <Filter navigation={navigation} />
-      </UserContext.Provider>
-    );
+    const { getByText, getByTestId, queryByTestId } = renderFilter({ filter: preset });
 
     // Gender
     getByTestId('dropdown-Rodyti tik-Female');
