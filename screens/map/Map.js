@@ -24,7 +24,7 @@ import mapStyleClean from '../../constants/mapStyleClean';
 import { GOOGLE_PLACES_API_KEY } from '@env';
 
 const categories = [
-    { key: 'quiet',    label: 'Tylos/mokymosi zonos', icon: 'library', color: '#6FCF97' },
+    { key: 'quiet',    label: 'Tylos / poilsio zonos', icon: 'library', color: '#6FCF97' },
     { key: 'printers', label: 'Spausdintuvai',         icon: 'printer', color: '#2F80ED' },
     { key: 'food',     label: 'Mikrobangės',            icon: 'microwave', color: '#F2994A' },
     { key: 'transport',label: 'Dviračių stovai',        icon: 'bike', color: '#9B51E0' },
