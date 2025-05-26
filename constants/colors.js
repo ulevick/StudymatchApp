@@ -4,6 +4,7 @@ export default {
     lightGreen: '#449239',
     bgtext: '#000000',
     text: '#ffffff',
+    text2: '#7F9CAB',
     lightpink: '#F05CCB',
     lightblue: '#70AAC4',
     blue: '#2B83BA',
@@ -24,4 +25,6 @@ export default {
     placeholder: "#7F9CAB",
     titleMatch: '#2B83BA',
     edittext: '#89A1B4',
+    success: '#449239',
+    warning: '#F37F0E',
 };

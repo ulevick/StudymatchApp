@@ -343,8 +343,8 @@ export default function EditProfile({ navigation }) {
           </View>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Pomėgiai</Text>
+        <View style={global.card}>
+          <Text style={global.cardTitle}>Pomėgiai</Text>
           <View style={global.chipsRow}>
             {preferences.map((pref) => (
               <View key={pref} style={styles.staticChip}>

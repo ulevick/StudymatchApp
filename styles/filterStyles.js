@@ -78,11 +78,12 @@ export default StyleSheet.create({
     borderColor: '#aaa',
     borderRadius: 20,
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 4,
   },
   plus: {
     fontSize: 18,
     fontFamily: 'Poppins-Bold',
+    color: Colors.bgtext,
   },
 
   /* Save button */

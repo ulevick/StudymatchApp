@@ -64,4 +64,9 @@ export default StyleSheet.create({
     padding: 12,
     zIndex: 10,
   },
+  cardText: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 13,
+    color: Colors.bgtext,
+  },
 });

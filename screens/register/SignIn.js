@@ -127,6 +127,7 @@ const SignIn = ({ navigation }) => {
                 authStyles.inputSigIn,
                 errEmail && authStyles.inputError,
               ]}
+              color="#333"
           />
 
           {/* slaptažodis */}

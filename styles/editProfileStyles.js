@@ -145,7 +145,7 @@ export default StyleSheet.create({
   },
   staticChip: {
     borderWidth: 1,
-    borderColor: Colors.black, // #000
+    borderColor: Colors.bgtext, // #000
     borderRadius: 20,
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -156,12 +156,12 @@ export default StyleSheet.create({
   staticChipText: {
     fontFamily: 'Poppins-Regular',
     fontSize: 13,
-    color: Colors.black, // #000
+    color: Colors.bgtext, // #000
   },
   addPrefChip: {
     borderWidth: 2,
     borderStyle: 'dashed',
-    borderColor: Colors.black, // #000
+    borderColor: Colors.bgtext, // #000
     borderRadius: 20,
     paddingHorizontal: 70,
     paddingVertical: 6,
@@ -173,7 +173,7 @@ export default StyleSheet.create({
   addPrefPlus: {
     fontSize: 18,
     fontWeight: '600',
-    color: Colors.black, // #000
+    color: Colors.bgtext, // #000
     marginTop: -2,
   },
 
@@ -191,4 +191,11 @@ export default StyleSheet.create({
     fontFamily: 'Poppins-Bold',
     fontSize: 16,
   },
+  cardTitle: {
+    fontSize: 16,
+    marginBottom: 10,
+    color: '#333',
+    fontFamily: 'Poppins-Bold',
+  },
+
 });

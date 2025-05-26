@@ -16,7 +16,7 @@ export default StyleSheet.create({
     fontFamily: 'Poppins-Bold',
     fontSize: 14,
     marginBottom: 8,
-    color: '#444',
+    color: '#333',
   },
   emailRow: {
     flexDirection: 'row',
@@ -88,7 +88,7 @@ export default StyleSheet.create({
     alignItems: 'center',
   },
   logoutText: {
-    color: Colors.bgGreen,
+    color: Colors.bgtext,
     fontFamily: 'Poppins-SemiBold',
     fontSize: 14,
   },
