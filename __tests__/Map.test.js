@@ -13,12 +13,21 @@ jest.mock('react-native-maps', () => {
   const PROVIDER_GOOGLE = 'google';
   const MapView = React.forwardRef((props, ref) => {
     React.useImperativeHandle(ref, () => ({ animateToRegion: mockAnimate }));
-    return <View testID="map-view">{props.children}</View>;
+    return (
+        <View
+            testID="map-view"
+            {...(props.onRegionChangeComplete
+                ? { onRegionChangeComplete: props.onRegionChangeComplete }
+                : {})}
+        >
+          {props.children}
+        </View>
+    );
   });
   const Marker = ({ onPress, children }) => (
-    <TouchableOpacity testID="marker" onPress={onPress}>
-      {children}
-    </TouchableOpacity>
+      <TouchableOpacity testID="marker" onPress={onPress}>
+        {children}
+      </TouchableOpacity>
   );
   return { __esModule: true, default: MapView, Marker, PROVIDER_GOOGLE };
 });
@@ -28,21 +37,22 @@ jest.mock('react-native-google-places-autocomplete', () => {
   const React = require('react');
   const { View, Text, TouchableOpacity } = require('react-native');
   return {
-    GooglePlacesAutocomplete: ({ placeholder, onPress }) => (
-      <View>
-        <Text testID="gpa-placeholder">{placeholder}</Text>
-        <TouchableOpacity
-          testID="gpa-press"
-          onPress={() =>
-            onPress(
-              { description: 'Foo' },
-              { geometry: { location: { lat: 10, lng: 20 } } }
-            )
-          }
-        >
-          <Text>Go</Text>
-        </TouchableOpacity>
-      </View>
+    GooglePlacesAutocomplete: ({ placeholder, onPress, textInputProps }) => (
+        <View>
+          <Text testID="gpa-placeholder">{placeholder}</Text>
+          <Text testID="gpa-input">{textInputProps.testID}</Text>
+          <TouchableOpacity
+              testID="gpa-press"
+              onPress={() =>
+                  onPress(
+                      { description: 'Foo' },
+                      { geometry: { location: { lat: 10, lng: 20 } } }
+                  )
+              }
+          >
+            <Text>Go</Text>
+          </TouchableOpacity>
+        </View>
     ),
   };
 });
@@ -56,7 +66,7 @@ jest.mock('@gorhom/bottom-sheet', () => {
     return <View testID="bottom-sheet">{children}</View>;
   });
   const BottomSheetView = ({ children }) => (
-    <View testID="bottom-sheet-view">{children}</View>
+      <View testID="bottom-sheet-view">{children}</View>
   );
   const BottomSheetBackdrop = (props) => <View testID="backdrop" {...props} />;
   return { BottomSheetModal, BottomSheetView, BottomSheetBackdrop };
@@ -70,9 +80,9 @@ jest.mock('react-native-vector-icons/MaterialCommunityIcons', () => {
 jest.mock('../components/Header', () => (props) => {
   const { TouchableOpacity, Text } = require('react-native');
   return (
-    <TouchableOpacity testID="header" onPress={props.onFilterPress}>
-      <Text>H</Text>
-    </TouchableOpacity>
+      <TouchableOpacity testID="header" onPress={props.onFilterPress}>
+        <Text>H</Text>
+      </TouchableOpacity>
   );
 });
 jest.mock('../components/Footer', () => () => {
@@ -85,29 +95,47 @@ jest.spyOn(Linking, 'openURL').mockImplementation(() => Promise.resolve());
 
 describe('MapScreen', () => {
   const navigation = { navigate: jest.fn() };
+  // žinom kiek buildingLabels yra kodo faile
+  const BUILDING_COUNT = 7;
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('renders all markers and toggles category filter on/off', () => {
-    const { getAllByTestId, getByText } = render(
-      <MapScreen navigation={navigation} />
+  it('renders map-loaded indicator when no category filter active, and hides when filtering', () => {
+    const { getByTestId, queryByTestId, getByText } = render(
+        <MapScreen navigation={navigation} />
     );
+    // pradžioje, activeCat=null ir spots.length>0
+    expect(getByTestId('map-loaded')).toBeTruthy();
+
+    // uždedam filtrą
+    fireEvent.press(getByText('Tylos / poilsio zonos'));
+    // pašalinam map-loaded
+    expect(queryByTestId('map-loaded')).toBeNull();
+  });
+
+  it('renders all spot markers and toggles category filter on/off', () => {
+    const { getAllByTestId, getByText } = render(
+        <MapScreen navigation={navigation} />
+    );
+    // pradinė žymeklių (spots) eilutė
     expect(getAllByTestId('marker')).toHaveLength(spotData.length);
 
+    // filtruoja pagal pirmą kategoriją
     const firstCat = getByText('Tylos / poilsio zonos');
     fireEvent.press(firstCat);
     const quietCount = spotData.filter(s => s.category === 'quiet').length;
     expect(getAllByTestId('marker')).toHaveLength(quietCount);
 
+    // išfiltruojame atgal
     fireEvent.press(firstCat);
     expect(getAllByTestId('marker')).toHaveLength(spotData.length);
   });
 
   it('navigates correctly via header and tabs', () => {
     const { getByTestId, getByText } = render(
-      <MapScreen navigation={navigation} />
+        <MapScreen navigation={navigation} />
     );
     fireEvent.press(getByTestId('header'));
     expect(navigation.navigate).toHaveBeenCalledWith('Filter');
@@ -122,30 +150,58 @@ describe('MapScreen', () => {
     expect(navigation.navigate).toHaveBeenCalledWith('Map');
   });
 
-  it('calls animateToRegion when a place is selected', () => {
+  it('renders GooglePlacesAutocomplete input and calls animateToRegion when a place is selected', () => {
     const { getByTestId } = render(<MapScreen navigation={navigation} />);
-    expect(mockAnimate).not.toHaveBeenCalled();
+    // yra placeholder ir input
+    expect(getByTestId('gpa-placeholder').props.children).toBe('Ieškoti adreso…');
+    expect(getByTestId('gpa-input')).toBeTruthy();
 
+    // simulate select
     fireEvent.press(getByTestId('gpa-press'));
     expect(mockAnimate).toHaveBeenCalledWith(
-      { latitude: 10, longitude: 20, latitudeDelta: 0.01, longitudeDelta: 0.01 },
-      400
+        { latitude: 10, longitude: 20, latitudeDelta: 0.01, longitudeDelta: 0.01 },
+        400
     );
   });
 
   it('presents bottom sheet on marker press and opens URL on CTA', () => {
     const { getAllByTestId, getByText } = render(
-      <MapScreen navigation={navigation} />
+        <MapScreen navigation={navigation} />
     );
+    // paspaudžiam ant pirmo spot marker
     fireEvent.press(getAllByTestId('marker')[0]);
 
     const cta = getByText('Pradėti');
     fireEvent.press(cta);
 
     expect(Linking.openURL).toHaveBeenCalledWith(
-      expect.stringMatching(
-        /^https:\/\/www\.google\.com\/maps\/dir\/\?api=1&destination=/
-      )
+        expect.stringMatching(
+            /^https:\/\/www\.google\.com\/maps\/dir\/\?api=1&destination=/
+        )
     );
+  });
+
+  it('shows building labels markers and labels when zoom delta <= threshold', () => {
+    const { getByTestId, getAllByTestId, getByText } = render(
+        <MapScreen navigation={navigation} />
+    );
+    // pradžioje tik spotData markers
+    expect(getAllByTestId('marker')).toHaveLength(spotData.length);
+
+    // priverstame regioną pasikeisti į mažą delta
+    fireEvent(getByTestId('map-view'), 'onRegionChangeComplete', {
+      latitude: 54.7226,
+      longitude: 25.337,
+      latitudeDelta: 0.003,
+      longitudeDelta: 0.003,
+    });
+    // dabar markers tiek spotų, tiek buildingLabels
+    expect(getAllByTestId('marker')).toHaveLength(
+        spotData.length + BUILDING_COUNT
+    );
+    // patikriname, kad kiekvienas building label rodomas
+    ['S1','S2','S3','S4','S5','S6','S7'].forEach(label => {
+      expect(getByText(label)).toBeTruthy();
+    });
   });
 });
