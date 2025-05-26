@@ -1,0 +1,95 @@
+// __tests__/Reg_Stud8.test.js
+
+import React from 'react';
+import { render, fireEvent } from '@testing-library/react-native';
+import Reg_Stud8 from '../screens/register/Reg_Stud8';
+
+// Mock out the background component to avoid native-code errors
+jest.mock('../components/BackgroundReg3_10', () => () => null);
+
+describe('Reg_Stud8', () => {
+  const mockNavigate = jest.fn();
+  const mockGoBack = jest.fn();
+  const baseParams = {
+    email: 'foo@uni.lt',
+    password: 'secret',
+    name: 'Alice',
+    birthday: '2000-01-01',
+    gender: 'F',
+    studyLevel: 'UG',
+    faculty: 'FacultyA',
+    studyProgram: 'Program1',
+    course: '1',
+  };
+
+  const renderScreen = () =>
+    render(
+      <Reg_Stud8
+        route={{ params: baseParams }}
+        navigation={{ navigate: mockNavigate, goBack: mockGoBack }}
+      />
+    );
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('renders title, instruction, both options, and buttons', () => {
+    const { getByText, getByTestId } = renderScreen();
+
+    // Combined title comes through as nested Text, so match with a regex
+    expect(getByText(/Study.*match/)).toBeTruthy();
+
+    // Instruction
+    expect(getByText('Ko ieškai?')).toBeTruthy();
+
+    // Option labels
+    expect(getByText('Kambarioko')).toBeTruthy();
+    expect(getByText('Bendraminčių')).toBeTruthy();
+
+    // Buttons
+    expect(getByText('Atgal')).toBeTruthy();
+    const nextBtn = getByTestId('next-button');
+    expect(nextBtn).toBeTruthy();
+    expect(nextBtn).toBeDisabled();
+  });
+
+  it('enables Next button when at least one option is selected', () => {
+    const { getByText, getByTestId } = renderScreen();
+    const nextBtn = getByTestId('next-button');
+
+    // Initially disabled
+    expect(nextBtn).toBeDisabled();
+
+    // Select then deselect the first option
+    fireEvent.press(getByText('Kambarioko'));
+    expect(nextBtn).not.toBeDisabled();
+    fireEvent.press(getByText('Kambarioko'));
+    expect(nextBtn).toBeDisabled();
+
+    // Select both options
+    fireEvent.press(getByText('Kambarioko'));
+    fireEvent.press(getByText('Bendraminčių'));
+    expect(nextBtn).not.toBeDisabled();
+  });
+
+  it('navigates to Reg_Stud9 with correct params when Next is pressed', () => {
+    const { getByText, getByTestId } = renderScreen();
+
+    // Choose both types
+    fireEvent.press(getByText('Kambarioko'));
+    fireEvent.press(getByText('Bendraminčių'));
+    fireEvent.press(getByTestId('next-button'));
+
+    expect(mockNavigate).toHaveBeenCalledWith('Reg_Stud9', {
+      ...baseParams,
+      searchTypes: ['kambarioko', 'bendraminciu'],
+    });
+  });
+
+  it('calls goBack when Back button is pressed', () => {
+    const { getByText } = renderScreen();
+    fireEvent.press(getByText('Atgal'));
+    expect(mockGoBack).toHaveBeenCalled();
+  });
+});

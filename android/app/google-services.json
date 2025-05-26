@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "825618754399",
+    "project_id": "studentconnecting-5d2c6",
+    "storage_bucket": "studentconnecting-5d2c6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:825618754399:android:a493458c60132f0a8fa4ea",
+        "android_client_info": {
+          "package_name": "com.studymatchapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9umf4m2Ggkk5IBhBwRNWvLgwxJ9U3Zrs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

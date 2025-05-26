@@ -1,0 +1,37 @@
+buildscript {
+    ext {
+        buildToolsVersion = "35.0.0"
+        minSdkVersion = 24
+        compileSdkVersion = 35
+        targetSdkVersion = 35
+        ndkVersion = "27.1.12297006"
+        kotlinVersion = "2.0.21"
+    }
+    repositories {
+        google()
+        mavenCentral()
+        maven { url("$rootDir/../node_modules/detox/Detox-android") }
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle")
+        classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+        classpath ("com.google.gms:google-services:4.4.2")
+    }
+}
+subprojects { proj ->
+  afterEvaluate {
+    if (proj.plugins.hasPlugin('com.android.library')) {
+      proj.android.packagingOptions {
+        jniLibs.pickFirsts += [
+          '**/libjsctooling.so',
+          '**/libhermestooling.so',
+          '**/libimagepipeline.so',
+          '**/libnative-filters.so',
+          '**/libnative-imagetranscoder.so'
+        ]
+      }
+    }
+  }
+}
+apply plugin: "com.facebook.react.rootproject"
