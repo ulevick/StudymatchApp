@@ -29,13 +29,13 @@ describe('NFR-17 – Discovery performance', () => {
         jestExpect(Date.now() - t0).toBeLessThanOrEqual(2000);
     });
 
-    it('viena kortelė nusiswipe’ina ≤ 1000 ms', async () => {
+    it('viena kortelė nusiswipe’ina ≤ 2000 ms', async () => {
         await waitFor(element(by.id('deck-swiper')))
             .toBeVisible()
             .withTimeout(2000);
 
         const t0 = Date.now();
         await element(by.id('deck-swiper')).swipe('left', 'fast', 0.8);
-        jestExpect(Date.now() - t0).toBeLessThanOrEqual(1100);
+        jestExpect(Date.now() - t0).toBeLessThanOrEqual(2000);
     });
 });

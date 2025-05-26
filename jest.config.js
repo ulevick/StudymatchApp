@@ -13,4 +13,5 @@ module.exports = {
     '^firebase/firestore$': '<rootDir>/__mocks__/firebaseFirestore.js',
     '^firebase/auth$': '<rootDir>/__mocks__/firebaseAuth.js',
   },
+  testTimeout: 10000,
 };

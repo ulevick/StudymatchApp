@@ -7,7 +7,9 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "test:unit": "jest --config=jest.config.js --coverage",
+    "test:e2e": "jest --config=e2e/jest.config.js"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
