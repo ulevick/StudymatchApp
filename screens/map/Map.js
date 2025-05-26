@@ -5,6 +5,7 @@ import {
     TouchableOpacity,
     Linking,
     Dimensions,
+    StyleSheet,
 } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
@@ -23,17 +24,34 @@ import mapStyleClean from '../../constants/mapStyleClean';
 import { GOOGLE_PLACES_API_KEY } from '@env';
 
 const categories = [
-    { key: 'quiet',     label: 'Tylos / poilsio zonos',     icon: 'sofa',    color: '#6FCF97' },
-    { key: 'printers',  label: 'Spausdintuvai',             icon: 'printer', color: '#2F80ED' },
-    { key: 'food',      label: 'Pigūs pietūs / Mikrobangės', icon: 'food',    color: '#F2994A' },
-    { key: 'transport', label: 'Dviračių stovai',           icon: 'bike',    color: '#9B51E0' },
+    { key: 'quiet',    label: 'Tylos/mokymosi zonos', icon: 'library', color: '#6FCF97' },
+    { key: 'printers', label: 'Spausdintuvai',         icon: 'printer', color: '#2F80ED' },
+    { key: 'food',     label: 'Mikrobangės',            icon: 'microwave', color: '#F2994A' },
+    { key: 'transport',label: 'Dviračių stovai',        icon: 'bike', color: '#9B51E0' },
+];
+
+const buildingLabels = [
+    { label: 'S1', coords: { latitude: 54.722396902459174, longitude: 25.337882535789632 } },
+    { label: 'S2', coords: { latitude: 54.722036702976446, longitude: 25.336715746434688 } },
+    { label: 'S3', coords: { latitude: 54.72233258577234, longitude: 25.33591584031863 } },
+    { label: 'S4', coords: { latitude: 54.72124219706608, longitude: 25.337247789750943 } },
+    { label: 'S5', coords: { latitude: 54.721493319546596, longitude: 25.3375683827278} },
+    { label: 'S6', coords: { latitude: 54.721363006315926, longitude: 25.336323309110583 } },
+    { label: 'S7', coords: { latitude: 54.72117181783911, longitude: 25.335403309146834 } },
 ];
 
 const { width } = Dimensions.get('window');
+const ZOOM_THRESHOLD = 0.004; // adjust as needed
 
 export default function MapScreen({ navigation }) {
     const [activeCat, setActiveCat]       = useState(null);
     const [selectedSpot, setSelectedSpot] = useState(null);
+    const [region, setRegion] = useState({
+        latitude: 54.7226,
+        longitude: 25.337,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+    });
     const mapRef   = useRef(null);
     const sheetRef = useRef(null);
     const snapPoints = useMemo(() => ['44%'], []);
@@ -74,14 +92,11 @@ export default function MapScreen({ navigation }) {
                     predefinedPlaces={[]}
                     enablePoweredByContainer={false}
                     keyboardShouldPersistTaps="always"
-
                     textInputProps={{
                         placeholderTextColor: '#666',
                         testID: 'gpa-input',
                     }}
-
                     onPress={async (data, details = null) => {
-                        console.log('AUTOCOMPLETE PRESS ➞', { data, details });
                         let loc = details?.geometry?.location;
                         if (!loc) {
                             try {
@@ -93,18 +108,14 @@ export default function MapScreen({ navigation }) {
                                 );
                                 const json = await res.json();
                                 loc = json.result?.geometry?.location;
-                                if (!loc) throw new Error('no geometry in fallback');
-                            } catch(err) {
-                                console.warn('Fallback details error:', err);
-                                return;
-                            }
+                                if (!loc) throw new Error('no geometry');
+                            } catch { return; }
                         }
                         mapRef.current?.animateToRegion(
                             { latitude: loc.lat, longitude: loc.lng, latitudeDelta: 0.01, longitudeDelta: 0.01 },
                             400
                         );
                     }}
-
                     query={{
                         key: GOOGLE_PLACES_API_KEY,
                         language: 'lt',
@@ -160,15 +171,11 @@ export default function MapScreen({ navigation }) {
                     ref={mapRef}
                     style={styles.map}
                     provider={PROVIDER_GOOGLE}
-                    initialRegion={{
-                        latitude: 54.7226,
-                        longitude: 25.337,
-                        latitudeDelta: 0.01,
-                        longitudeDelta: 0.01,
-                    }}
+                    initialRegion={region}
+                    onRegionChangeComplete={r => setRegion(r)}
                     customMapStyle={mapStyleClean}
                     showsPointsOfInterest={false}
-                    showsBuildings={false}
+                    showsBuildings={true}
                 >
                     {spots.map((s, idx) => (
                         <Marker
@@ -186,6 +193,21 @@ export default function MapScreen({ navigation }) {
                             </View>
                         </Marker>
                     ))}
+
+                    {region.latitudeDelta <= ZOOM_THRESHOLD && buildingLabels.map(({ label, coords }, idx) => (
+                        <Marker
+                            key={`label-${label}-${idx}`}
+                            coordinate={coords}
+                            anchor={{ x: 0.5, y: 1 }}
+                            tracksViewChanges={false}
+                        >
+                            <View style={localStyles.buildingLabel}>
+                                <Text style={localStyles.buildingLabelText}>{label}</Text>
+                                <View style={localStyles.buildingArrow} />
+                            </View>
+                        </Marker>
+                    ))}
+
                 </MapView>
 
                 {!activeCat && spots.length > 0 && (
@@ -193,7 +215,6 @@ export default function MapScreen({ navigation }) {
                 )}
             </View>
 
-            {/* --- BOTTOM SHEET --- */}
             <BottomSheetModal
                 ref={sheetRef}
                 snapPoints={snapPoints}
@@ -213,10 +234,17 @@ export default function MapScreen({ navigation }) {
                                         color={categories.find(c => c.key === selectedSpot.category)?.color}
                                     />
                                 </View>
-                                <View style={{ marginLeft: 12 }}>
+                                <View style={{ marginLeft: 12, flex: 1 }}>
                                     <Text style={styles.spotTitle}>{selectedSpot.title}</Text>
                                     {selectedSpot.description && (
-                                        <Text style={{ marginTop: 6, fontSize: 13, color: '#666' }}>
+                                        <Text style={{
+                                            marginTop: 6,
+                                            fontSize: 13,
+                                            color: '#666',
+                                            flexShrink: 1,
+                                            flexWrap: 'wrap',
+                                            maxWidth: '100%',
+                                        }}>
                                             {selectedSpot.description}
                                         </Text>
                                     )}
@@ -259,6 +287,38 @@ export default function MapScreen({ navigation }) {
     );
 }
 
+const localStyles = StyleSheet.create({
+    buildingLabel: {
+        paddingVertical: 6,
+        paddingHorizontal: 10,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+        elevation: 3,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    buildingLabelText: {
+        fontWeight: '600',
+        fontSize: 15,
+        color: '#333',
+    },
+    buildingArrow: {
+        position: 'absolute',
+        bottom: -6,
+        left: '50%',
+        marginLeft: -6,
+        width: 0,
+        height: 0,
+        borderLeftWidth: 6,
+        borderRightWidth: 6,
+        borderTopWidth: 6,
+        borderLeftColor: 'transparent',
+        borderRightColor: 'transparent',
+        borderTopColor: 'rgba(255,255,255,0.9)',
+    },
+});
+
 const gpaStyles = {
     container: {
         position: 'absolute',
@@ -272,7 +332,7 @@ const gpaStyles = {
         height: 40,
         borderRadius: 20,
         backgroundColor: '#fff',
-        paddingLeft: 44, // vieta ikonai
+        paddingLeft: 44,
         paddingRight: 12,
         fontSize: 14,
         color: '#333',

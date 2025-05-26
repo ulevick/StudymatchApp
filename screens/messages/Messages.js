@@ -274,7 +274,7 @@ export default function Messages({ navigation }) {
     return (
         <View style={styles.container}>
             <Header onFilterPress={() => navigation.navigate('Filter')} />
-            <Text style={styles.titleScreen}>Likes & Match</Text>
+            <Text style={styles.titleScreen}>Naujos simpatijos</Text>
 
             <ScrollView contentContainerStyle={styles.scrollContainer}>
                 {/* Likes + Match sekcija */}
