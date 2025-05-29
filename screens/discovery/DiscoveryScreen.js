@@ -108,17 +108,33 @@ export default function DiscoveryScreen({
                 // Apskaičiuojam atstumą
                 if (meLoc && data.location) {
                     data.distanceKm = getDistanceKm(
-                        meLoc.latitude, meLoc.longitude,
-                        data.location.latitude, data.location.longitude,
+                        meLoc.latitude,
+                        meLoc.longitude,
+                        data.location.latitude,
+                        data.location.longitude
                     );
                 }
+
+                // Suderinamumo balas
                 data.score = computeScore(data, userData, filters);
 
-                // **Čia pritaikome bazinį filtrą + papildomą (Roommates)**
-                if (applyUserFilter(data, filters, meLoc) && extraFilter(data, filters, meLoc)) {
+                // Taikomi filtrai
+                if (
+                    applyUserFilter(data, filters, meLoc) &&
+                    extraFilter(data, filters, meLoc)
+                ) {
                     list.push(data);
                 }
             });
+
+            // Jei filtras nenaudojamas – rikiuoti pagal suderinamumą
+            if (
+                !filters?.filterPreferences?.length &&
+                !filters?.filterAge &&
+                !filters?.filterDistance
+            ) {
+                list.sort((a, b) => b.score - a.score); // didėjimo tvarka pagal score
+            }
 
             setItems(prev => (initial ? list : [...prev, ...list]));
             setLastDoc(snap.docs[snap.docs.length - 1]);
@@ -128,6 +144,7 @@ export default function DiscoveryScreen({
             setLoadingMore(false);
         }
     }, [makeQuery, userData, userId, extraFilter, preload, items.length]);
+
 
     // Pirmas fetch
     useEffect(() => {
@@ -187,10 +204,22 @@ export default function DiscoveryScreen({
             {renderTabs(activeTabKey)}
 
             {loading ? (
-                <ActivityIndicator style={{flex:1}} size="large" color="#1da1f2"/>
-            ) : items.length === 0 ? (
-                <Text style={styles.noMore}>Nėra daugiau studentų.</Text>
+                <ActivityIndicator style={{ flex: 1 }} size="large" color="#1da1f2" />
+            ) : items.length === 0 || cardIndex >= items.length ? (
+                <View style={styles.noMoreContainer}>
+                    <Text style={styles.noMoreTitle}>Nėra daugiau studentų</Text>
+                    <Text style={styles.noMoreDescription}>
+                        {items.length === 0
+                            ? (userData?.filter?.filterPreferences?.length ||
+                                userData?.filter?.filterAge ||
+                                userData?.filter?.filterDistance)
+                                ? 'Pagal pasirinktus filtrus nerasta atitinkančių studentų.'
+                                : 'Šiuo metu nėra studentų, kuriuos galėtumėte peržiūrėti.'
+                            : 'Peržiūrėjote visus studentus. Patikrinkite vėliau arba pakoreguokite filtrus, kad rastumėte daugiau.'}
+                    </Text>
+                </View>
             ) : (
+
                 <View style={styles.swiperArea}>
                     <Swiper
                         testID="deck-swiper"
@@ -243,4 +272,25 @@ const styles = StyleSheet.create({
     },
     swiperContainer:{ flex:1, backgroundColor:'transparent' },
     swiperCard:{ width:'100%', height:'100%', backgroundColor:'transparent' },
+    noMoreContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 24,
+    },
+    noMoreTitle: {
+        fontSize: 20,
+        fontFamily: 'Poppins-SemiBold',
+        color: '#555',
+        marginBottom: 8,
+        textAlign: 'center',
+    },
+    noMoreDescription: {
+        fontSize: 16,
+        fontFamily: 'Poppins-Regular',
+        color: '#888',
+        textAlign: 'center',
+        lineHeight: 22,
+    },
+
 });

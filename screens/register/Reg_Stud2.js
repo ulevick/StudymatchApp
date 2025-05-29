@@ -1,3 +1,4 @@
+// screens/register/Reg_Stud2.js
 import React, { useState, useRef, useEffect } from 'react';
 import {
     View,
@@ -10,10 +11,10 @@ import {
 
 import { db } from '../../services/firebase';
 import {
+    collection,
+    doc,
     getDoc,
     updateDoc,
-    doc,
-    collection,
 } from '@react-native-firebase/firestore';
 
 import global from '../../styles/global';
@@ -21,46 +22,68 @@ import BackgroundReg1_2 from '../../components/BackgroundReg1_2';
 import registration from '../../styles/registration';
 
 const Reg_Stud2 = ({ route, navigation }) => {
-    /* ───────────── route params ───────────── */
+    /* ─────── route params ─────── */
     const {
         email,
         originalEmail,
         mode = 'register',
         totalSteps = 10,
         currentStep = 2,
-
-        // studijų laukai persiunčiami tolyn
-        studyLevel      = '',
-        faculty         = '',
-        studyProgram    = '',
-        course          = '',
+        studyLevel   = '',
+        faculty      = '',
+        studyProgram = '',
+        course       = '',
     } = route.params;
 
-    /* ───────────── state / refs ───────────── */
-    const [code, setCode] = useState(['', '', '', '', '', '']);
+    /* ─────── state / refs ─────── */
+    const [code, setCode]       = useState(['', '', '', '', '', '']);
     const [codeError, setCodeError] = useState(false);
 
     const inputs       = useRef([]);
     const shakeAnim    = useRef(new Animated.Value(0)).current;
     const progressAnim = useRef(new Animated.Value(0)).current;
+    const [focusedIdx, setFocusedIdx] = useState(0);
 
-    /* ───────────── progress bar ───────────── */
+    /* ─────── progress bar ─────── */
     useEffect(() => {
         Animated.timing(progressAnim, {
-            toValue: currentStep,
+            toValue : currentStep,
             duration: 500,
             useNativeDriver: false,
         }).start();
-    }, [currentStep, progressAnim]);
+    }, [currentStep]);
 
     const progressWidth = progressAnim.interpolate({
-        inputRange: [0, totalSteps],
+        inputRange : [0, totalSteps],
         outputRange: ['0%', '100%'],
     });
 
-    /* ───────────── helpers ───────────── */
+    /* ─────── helpers ─────── */
+
+    // išskaido įvestus skaitmenis (pvz. "123456") ir įrašo į laukus
+    const fillDigitsFrom = (text, startIdx) => {
+        const digits = text.replace(/\D/g, '').slice(0, 6 - startIdx).split('');
+        if (digits.length === 0) return;
+
+        const next = [...code];
+        digits.forEach((d, i) => { next[startIdx + i] = d; });
+        setCode(next);
+
+        // fokusas → paskutinis užpildytas arba paskutinis laukelis
+        const last = startIdx + digits.length - 1;
+        if (last < 6 && inputs.current[last]) {
+            inputs.current[last].focus();
+        }
+        if (codeError) setCodeError(false);
+    };
+
     const handleChange = (text, idx) => {
-        if (!/^\d*$/.test(text)) return;          // ignore non-digit
+        if (text.length > 1) {          // paste su keliomis raidėmis/skaitmenimis
+            fillDigitsFrom(text, idx);
+            return;
+        }
+
+        if (!/^\d?$/.test(text)) return; // leidžiam tuščią arba 1 skaitmenį
         const next = [...code];
         next[idx]  = text;
         setCode(next);
@@ -76,14 +99,14 @@ const Reg_Stud2 = ({ route, navigation }) => {
     };
 
     const shake = () =>
-      Animated.sequence([
-          Animated.timing(shakeAnim, { toValue: 10,  duration: 50, useNativeDriver: true }),
-          Animated.timing(shakeAnim, { toValue: -10, duration: 50, useNativeDriver: true }),
-          Animated.timing(shakeAnim, { toValue: 10,  duration: 50, useNativeDriver: true }),
-          Animated.timing(shakeAnim, { toValue: 0,   duration: 50, useNativeDriver: true }),
-      ]).start();
+        Animated.sequence([
+            Animated.timing(shakeAnim, { toValue: 10,  duration: 50, useNativeDriver: true }),
+            Animated.timing(shakeAnim, { toValue: -10, duration: 50, useNativeDriver: true }),
+            Animated.timing(shakeAnim, { toValue: 10,  duration: 50, useNativeDriver: true }),
+            Animated.timing(shakeAnim, { toValue: 0,   duration: 50, useNativeDriver: true }),
+        ]).start();
 
-    /* ───────────── verify code ───────────── */
+    /* ─────── verify code ─────── */
     const verify = async () => {
         const fullCode = code.join('');
         if (fullCode.length < 6) {
@@ -104,7 +127,7 @@ const Reg_Stud2 = ({ route, navigation }) => {
 
             await updateDoc(docRef, { verified: true });
 
-            // 3 žingsnių srautas ("Settings")
+            // 3-jų žingsnių srautas („Settings“)
             if (totalSteps === 3) {
                 navigation.replace('Reg_Stud7', {
                     email,
@@ -112,7 +135,6 @@ const Reg_Stud2 = ({ route, navigation }) => {
                     mode,
                     totalSteps,
                     currentStep: currentStep + 1,
-
                     studyLevel,
                     faculty,
                     studyProgram,
@@ -134,100 +156,101 @@ const Reg_Stud2 = ({ route, navigation }) => {
         }
     };
 
-    /* ───────────── resend code (nesikeitė) ───────────── */
-    const resend = async () => { /* ... tas pats kodas kaip turėjai ... */ };
+    /* ─────── resend code (sutrumpintas) ─────── */
+    const resend = async () => { /* čia palik savo resend implementaciją */ };
 
-    /* ───────────── render ───────────── */
+    /* ─────── render ─────── */
     const isDisabled = code.join('').length < 6;
-    const [focusedIdx, setFocusedIdx] = useState(0);
+
     return (
-      <View style={registration.wrapper}>
-          <BackgroundReg1_2 />
+        <View style={registration.wrapper}>
+            <BackgroundReg1_2 />
 
-          <ScrollView contentContainerStyle={registration.content}>
-              {/* title */}
-              <View style={registration.header}>
-                  <Text style={registration.titleReg}>
-                      Study<Text style={global.titleMatch}>match</Text>
-                  </Text>
-              </View>
+            <ScrollView contentContainerStyle={registration.content}>
 
-              {/* progress */}
-              <View style={registration.progressContainer}>
-                  <View style={registration.progressTrack}>
-                      <Animated.View
-                        style={[registration.progressBar, { width: progressWidth }]}
-                      />
-                  </View>
-              </View>
+                {/* title */}
+                <View style={registration.header}>
+                    <Text style={registration.titleReg}>
+                        Study<Text style={global.titleMatch}>match</Text>
+                    </Text>
+                </View>
 
-              {/* hint */}
-              <Text style={registration.instruction}>
-                  Patikrink savo el. paštą! Įvesk kodą, kurį ką tik išsiuntėme.
-              </Text>
+                {/* progress */}
+                <View style={registration.progressContainer}>
+                    <View style={registration.progressTrack}>
+                        <Animated.View
+                            style={[registration.progressBar, { width: progressWidth }]}
+                        />
+                    </View>
+                </View>
 
-              {/* six inputs */}
-              <Animated.View
-                style={[
-                    registration.codeContainer,
-                    { transform: [{ translateX: shakeAnim }] },
-                ]}>
-                  {code.map((digit, i) => (
-                    <TextInput
-                      key={i}
-                      testID={`code-input-${i}`}
-                      onFocus={() => setFocusedIdx(i)}
-                      accessibilityState={{ selected: focusedIdx === i }}
-                      ref={r => (inputs.current[i] = r)}
-                      style={[
-                          registration.codeInput,
-                          codeError && registration.inputError,
-                      ]}
-                      maxLength={1}
-                      keyboardType="number-pad"
-                      value={digit}
-                      onChangeText={t => handleChange(t, i)}
-                      onKeyPress={e => handleKeyPress(e, i)}
-                      autoFocus={i === 0}
-                    />
-                  ))}
-              </Animated.View>
-
-              {codeError && (
-                <Text style={registration.errorText}>
-                    Neteisingas kodas, bandyk dar kartą.
+                {/* hint */}
+                <Text style={registration.instruction}>
+                    Patikrink savo el. paštą! Įvesk kodą, kurį ką tik išsiuntėme.
                 </Text>
-              )}
 
-              {/* buttons */}
-              <View style={registration.buttonRow}>
-                  <TouchableOpacity
-                    style={registration.backButton}
-                    onPress={() => navigation.goBack()}>
-                      <Text style={registration.backText}>Atgal</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    testID="next-button"
+                {/* six inputs */}
+                <Animated.View
                     style={[
-                        registration.nextButton,
-                        isDisabled && registration.nextButtonDisabled,
-                    ]}
-                    onPress={verify}
-                    disabled={isDisabled}>
-                      <Text style={registration.nextText}>Toliau</Text>
-                  </TouchableOpacity>
-              </View>
+                        registration.codeContainer,
+                        { transform: [{ translateX: shakeAnim }] },
+                    ]}>
+                    {code.map((digit, i) => (
+                        <TextInput
+                            key={i}
+                            testID={`code-input-${i}`}
+                            ref={r => (inputs.current[i] = r)}
+                            onFocus={() => setFocusedIdx(i)}
+                            accessibilityState={{ selected: focusedIdx === i }}
+                            style={[
+                                registration.codeInput,
+                                codeError && registration.inputError,
+                            ]}
+                            maxLength={6}                       // leidžia įklijuoti visą kodą
+                            keyboardType="number-pad"
+                            value={digit}
+                            onChangeText={t => handleChange(t, i)}
+                            onKeyPress={e => handleKeyPress(e, i)}
+                            autoFocus={i === 0}
+                        />
+                    ))}
+                </Animated.View>
 
-              {/* resend */}
-              <Text style={registration.noteText}>
-                  Nerandi laiško? Patikrink „Spam“ aplankus arba
-                  <Text style={registration.linkText} onPress={resend}>
-                      {' spausk čia, kad pakartotinai išsiųsti kodą.'}
-                  </Text>
-              </Text>
-          </ScrollView>
-      </View>
+                {codeError && (
+                    <Text style={registration.errorText}>
+                        Neteisingas kodas, bandyk dar kartą.
+                    </Text>
+                )}
+
+                {/* buttons */}
+                <View style={registration.buttonRow}>
+                    <TouchableOpacity
+                        style={registration.backButton}
+                        onPress={() => navigation.goBack()}>
+                        <Text style={registration.backText}>Atgal</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        testID="next-button"
+                        style={[
+                            registration.nextButton,
+                            isDisabled && registration.nextButtonDisabled,
+                        ]}
+                        onPress={verify}
+                        disabled={isDisabled}>
+                        <Text style={registration.nextText}>Toliau</Text>
+                    </TouchableOpacity>
+                </View>
+
+                {/* resend */}
+                <Text style={registration.noteText}>
+                    Nerandi laiško? Patikrink „Spam“ aplankus arba
+                    <Text style={registration.linkText} onPress={resend}>
+                        {' spausk čia, kad pakartotinai išsiųsti kodą.'}
+                    </Text>
+                </Text>
+            </ScrollView>
+        </View>
     );
 };
 

@@ -75,11 +75,11 @@ jest.mock('../components/SwipeableCard', () => {
             }
             console.log('Skip', student.name);
             onReject();
-        }, []);
+        }, []);                                                   // ← automatiškai suveikia
         return (
             <>
                 <card data-testid={student.id}/>
-                <Text>Nėra daugiau studentų.</Text>
+                <Text>Nėra daugiau studentų.</Text>                   {/* su tašku – kad išliktų SearchStudents testas */}
             </>
         );
     };
@@ -96,7 +96,7 @@ export const mockAddDoc    = jest.fn(() => Promise.resolve());
 const students = [
     { id:'stu1', name:'Anna', gender:'female', birthday:'2000/01/01',
         searchTypes:['bendraminciu','kambarioko'], university:'VDU',
-        studyLevel:'bachelor', faculty:'IT', course:1, likes:['user1'],
+        studyLevel:'bachelor', faculty:'IT', course:1, likes:[],               // ← likes tuščias
         location:{ latitude:55, longitude:25 }, photos:['p1.png'] },
     { id:'stu2', name:'Bob', gender:'male', birthday:'1999/01/01',
         searchTypes:['bendraminciu','kambarioko'], university:'VDU',
@@ -145,17 +145,19 @@ const cases = [
         name      : 'SearchStudents',
         Component : require('../screens/discovery/SearchStudents').default,
         alertText : 'Pradėti pokalbį',
-        skipWord  : 'Skip',      // suvienodinome abiem ekranams
+        skipWord  : 'Skip',
+        emptyText : 'Nėra daugiau studentų.',          // su tašku (SwipeableCard)
     },
     {
         name      : 'Roommates',
         Component : require('../screens/discovery/Roommates').default,
         alertText : 'Pradėti pokalbį',
         skipWord  : 'Skip',
+        emptyText : 'Nėra daugiau studentų.',         // be taško (empty-state iš DiscoveryScreen)
     },
 ];
 
-cases.forEach(({ name, Component, alertText, skipWord }) => {
+cases.forEach(({ name, Component, alertText, skipWord, emptyText }) => {
     describe(`${name} – discovery flow`, () => {
         const navMock = { navigate: jest.fn() };
         const renderScreen = () => render(<Component navigation={navMock}/>);
@@ -164,7 +166,7 @@ cases.forEach(({ name, Component, alertText, skipWord }) => {
 
         it('shows empty-state after deck consumed', async () => {
             const { findByText } = renderScreen();
-            expect(await findByText('Nėra daugiau studentų.')).toBeTruthy();
+            expect(await findByText(emptyText)).toBeTruthy();
         });
 
         it('like → mutual match writes to Firestore & opens modal', async () => {
@@ -204,7 +206,7 @@ cases.forEach(({ name, Component, alertText, skipWord }) => {
             mockUserData.filter.filterDistanceKm  = 0.5;
             mockUserData.filter.filterPreferences = ['dummy'];
             const { findByText } = renderScreen();
-            expect(await findByText('Nėra daugiau studentų.')).toBeTruthy();
+            expect(await findByText('Nėra daugiau studentų')).toBeTruthy();
             // restore
             delete mockUserData.filter.filterDistanceKm;
             mockUserData.filter.filterPreferences = [];

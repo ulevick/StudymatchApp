@@ -122,9 +122,7 @@ const originalSpotData = [
   },
 ];
 
-
-
-const adjustOverlappingCoords = (spots) => {
+export function adjustOverlappingCoords(spots) {
   const seen = new Map();
 
   return spots.map((spot) => {
@@ -146,6 +144,7 @@ const adjustOverlappingCoords = (spots) => {
       return spot;
     }
   });
-};
+}
 
+// Galutinis spotData – jau su adjustOverlappingCoords pritaikymu
 export const spotData = adjustOverlappingCoords(originalSpotData);
