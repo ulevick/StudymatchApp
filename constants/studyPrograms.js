@@ -1,4 +1,3 @@
-// src/constants/studyPrograms.js
 const studyPrograms = {
   'Vilnius Tech universitetas': {
     'Bakalauras': {

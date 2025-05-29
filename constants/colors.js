@@ -1,4 +1,3 @@
-// src/constants/colors.js
 export default {
     primary: '#F1F2F4',
     lightGreen: '#449239',

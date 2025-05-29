@@ -1,5 +1,3 @@
-// src/constants/preferencesData.js
-
 export const preferencesData = [
   {
     title: 'Gyvenimo būdas',

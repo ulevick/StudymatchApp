@@ -1,5 +1,3 @@
-// src/constants/universityMappings.js
-
 const universityMappings = {
   'stud.vilniustech.lt': 'Vilnius Tech universitetas',
   'stud.vu.lt': 'Vilniaus universitetas',

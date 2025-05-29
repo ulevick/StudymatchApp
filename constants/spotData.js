@@ -1,5 +1,5 @@
 const originalSpotData = [
-  //Tylos mokymosi zonos
+// Quiet study zones
   {
     title: 'Tylos/mokymosi zona – MKIC',
     category: 'quiet',
@@ -18,7 +18,7 @@ const originalSpotData = [
     hours: 'Darbo dienomis 8:00–22:00',
     coords: { latitude: 54.72157400917356, longitude: 25.337474396074246 },
   },
-  // Mikrobanges
+  // Microwave access points
   {
     title: 'Mikrobangė – VILNIUS TECH kavinė "Hey Hungry" (S2 - I aukštis)',
     category: 'food',
@@ -37,7 +37,7 @@ const originalSpotData = [
     hours: 'I–VII 9:00–21:00',
     coords: { latitude: 54.7223, longitude: 25.3335 },
   },
-    //Dviraciu stovai
+  // Bike stands
   {
     title: 'Dviračių stovai – VU Taikomųjų mokslų institutas',
     category: 'transport',
@@ -65,7 +65,7 @@ const originalSpotData = [
     hours: 'Visą parą',
     coords: { latitude: 54.722191, longitude: 25.336991 },
   },
-    //Spausdintuvai
+  // Printer locations
   {
     title: 'Spausdintuvas – Aplinkos inžinerijos fakultetas, S5 (III ir V a.)',
     category: 'printers',
@@ -146,5 +146,4 @@ export function adjustOverlappingCoords(spots) {
   });
 }
 
-// Galutinis spotData – jau su adjustOverlappingCoords pritaikymu
 export const spotData = adjustOverlappingCoords(originalSpotData);
