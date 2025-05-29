@@ -1,4 +1,3 @@
-// components/BackgroundReg3_10.js
 import React from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 

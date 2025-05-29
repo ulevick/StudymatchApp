@@ -26,4 +26,7 @@ export default {
     edittext: '#89A1B4',
     success: '#449239',
     warning: '#F37F0E',
+    black: '#000000',
+    filledicon: '#707F87',
+    icon: '#8E9498',
 };

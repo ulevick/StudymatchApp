@@ -17,7 +17,6 @@ const Header = ({ onFilterPress }) => {
   );
 };
 
-
 export default Header;
 
 const styles = StyleSheet.create({

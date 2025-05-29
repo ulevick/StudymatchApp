@@ -185,7 +185,6 @@ const SwipeableCard = ({
         </ScrollView>
       </Animated.View>
 
-      {/* swipe buttons */}
       <View style={styles.btnRow} {...hPan.panHandlers}>
         <TouchableOpacity style={[styles.circle, { transform: [{ scale: 0.8 }] }]} onPress={onReturn}>
           <Ionicons name="arrow-undo" size={28} color="#FFF" />

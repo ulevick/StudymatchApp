@@ -1,4 +1,3 @@
-// components/BackgroundReg1_2.js
 import React from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 

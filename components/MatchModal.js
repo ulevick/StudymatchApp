@@ -1,4 +1,3 @@
-// components/MatchModal.js
 import React from 'react';
 import { View, Text, Modal, Image, StyleSheet, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -58,7 +57,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
@@ -87,14 +86,14 @@ const styles = StyleSheet.create({
   },
   matchTitle: {
     fontSize: 30,
-    color: '#fff',
+    color: Colors.white,
     fontFamily: 'Poppins-Bold',
     marginBottom: 12,
     textAlign: 'center',
   },
   matchText: {
     fontSize: 18,
-    color: '#fff',
+    color: Colors.white,
     textAlign: 'center',
     fontFamily: 'Poppins-Regular',
     lineHeight: 26,
@@ -109,7 +108,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     fontFamily: 'Poppins-SemiBold',
-    color: '#fff',
+    color: Colors.white,
     fontWeight: 'bold',
   },
 });

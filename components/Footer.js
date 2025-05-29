@@ -1,11 +1,7 @@
-// components/Footer.js
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import Colors from '../constants/colors';   // jei norite, galite visai nebenaudoti
-
-/* ← ČIA nustatote bendrą spalvą visiems „užpildytiems“ (active) iconams */
-const ACTIVE_ICON_COLOR = '#707F87';        // pvz. raudona
+import Colors from '../constants/colors';
 
 const Footer = ({ activeTab = 'Profile', onTabPress }) => {
   const tabs = [
@@ -42,7 +38,7 @@ const Footer = ({ activeTab = 'Profile', onTabPress }) => {
         {tabs.map(({ keys, primary, outlineIcon, filledIcon }) => {
           const isActive  = keys.some((k) => k.toLowerCase() === lowerActive);
           const iconName  = isActive ? filledIcon : outlineIcon;
-          const iconColor = isActive ? ACTIVE_ICON_COLOR : '#8E9498';
+          const iconColor = isActive ? Colors.filledicon : Colors.icon;
 
           return (
               <TouchableOpacity key={primary} testID={`footer-${primary.toLowerCase()}`} onPress={() => onTabPress(primary)}>
@@ -68,8 +64,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     paddingVertical: 12,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.white,
     borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopColor: Colors.white,
   },
 });
