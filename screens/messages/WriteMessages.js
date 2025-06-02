@@ -1,4 +1,3 @@
-// screens/WriteMessages.js
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
@@ -34,7 +33,7 @@ export default function WriteMessages({ route }) {
 
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
-  const [receiverTypes, setReceiverTypes] = useState([]);   /* NEW */
+  const [receiverTypes, setReceiverTypes] = useState([]);
 
   const flatListRef = useRef(null);
   const chatId =

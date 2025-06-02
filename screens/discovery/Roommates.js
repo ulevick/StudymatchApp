@@ -4,10 +4,9 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { preferencesData } from '../../constants/preferencesData';
 import { calculateAge }    from '../../utils/compatibility';
 
-const matchesExtra = (stu, filter/*, meLoc*/) => {
+const matchesExtra = (stu, filter) => {
   if (!filter) return true;
 
-  /* visi kambariokų-specifiniai apribojimai */
   if (filter.filterGender && stu.gender !== filter.filterGender) return false;
   const age = calculateAge(stu.birthday);
   if (filter.filterAgeMin && age < filter.filterAgeMin) return false;
@@ -17,7 +16,6 @@ const matchesExtra = (stu, filter/*, meLoc*/) => {
   if (filter.filterFaculty && stu.faculty !== filter.filterFaculty) return false;
   if (filter.filterCourse && stu.course !== filter.filterCourse) return false;
 
-  /* preferences */
   if (filter.filterPreferences?.length) {
     const sel = filter.filterPreferences;
     const stuPrefs = stu.preferences || {};
@@ -30,7 +28,6 @@ const matchesExtra = (stu, filter/*, meLoc*/) => {
       if (!need.includes(stuPrefs[cat])) return false;
     }
   }
-  /* distance patikrinamas jau bazinėje dalyje DiscoveryScreen */
 
   return true;
 };

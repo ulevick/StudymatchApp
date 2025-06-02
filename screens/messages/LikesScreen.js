@@ -1,4 +1,3 @@
-// screens/LikesScreen.js
 import React, { useMemo } from 'react';
 import {
     View,
@@ -11,13 +10,11 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
-import filterStyles   from '../../styles/filterStyles';   // identiškas header’io stilius
+import filterStyles   from '../../styles/filterStyles';
 import Colors         from '../../constants/colors';
 import { calculateAge }  from '../../utils/compatibility';
 import { getDistanceKm } from '../../utils/getDistanceKm';
 
-/* ---------- Ženkliukas ---------- */
 const Tag = ({ type }) => (
     <View
         style={[
@@ -38,11 +35,9 @@ const Tag = ({ type }) => (
     </View>
 );
 
-/* ---------- Pagrindinis komponentas ---------- */
 export default function LikesScreen({ route, navigation }) {
     const { pendingLikes = [], myLocation } = route.params || {};
 
-    /* — amžius + atstumas — */
     const enriched = useMemo(
         () =>
             pendingLikes.map((u) => {
@@ -61,7 +56,6 @@ export default function LikesScreen({ route, navigation }) {
         [pendingLikes, myLocation],
     );
 
-    /* — viena kortelė — */
     const renderItem = ({ item }) => (
         <View style={likesStyles.card}>
             <Image source={{ uri: item.avatar }} style={likesStyles.photo} />
@@ -70,7 +64,6 @@ export default function LikesScreen({ route, navigation }) {
                 colors={['transparent', 'rgba(0,0,0,0.78)']}
                 style={likesStyles.overlay}
             >
-                {/* Vardas, amžius + ženkliukai */}
                 <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
                     <Text style={likesStyles.name}>
                         {item.name}
@@ -80,7 +73,6 @@ export default function LikesScreen({ route, navigation }) {
                     {item.searchTypes?.includes('bendraminciu') && <Tag type="bendraminciu" />}
                 </View>
 
-                {/* Universitetas + atstumas */}
                 {(item.university || item.dist) && (
                     <Text style={likesStyles.sub}>
                         {item.university}
@@ -94,7 +86,6 @@ export default function LikesScreen({ route, navigation }) {
 
     return (
         <View style={{ flex: 1 }}>
-            {/* ---------- viršutinė juosta (tokio pat stiliaus kaip Filter.js) ---------- */}
             <View style={filterStyles.topHeader}>
                 <TouchableOpacity
                     testID="back-button"
@@ -119,10 +110,9 @@ export default function LikesScreen({ route, navigation }) {
     );
 }
 
-/* ---------- stiliai kortelėms / sąrašui ---------- */
 const { width } = Dimensions.get('window');
 const GAP  = 16;
-const CARD = (width - GAP * 3) / 2;   // du stulpeliai + tarpai
+const CARD = (width - GAP * 3) / 2;
 
 const likesStyles = StyleSheet.create({
     list: { padding: GAP },

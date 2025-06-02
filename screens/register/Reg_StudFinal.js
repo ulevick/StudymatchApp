@@ -7,9 +7,7 @@ import {
   serverTimestamp,
   GeoPoint,
 } from '@react-native-firebase/firestore';
-
 import { getCurrentLocation } from '../../utils/getCurrentLocation';
-
 import registration from '../../styles/registration';
 import PeopleBackground from '../../components/PeopleBackground';
 
@@ -64,6 +62,7 @@ const Reg_StudFinal = ({ route, navigation }) => {
         photos: photos || [],
         university: getUniversityName(email),
         aboutMe: '',
+        verifiedAt: serverTimestamp(),
         location: coords
           ? new GeoPoint(coords.latitude, coords.longitude)
           : null,

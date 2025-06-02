@@ -1,4 +1,3 @@
-// utils/getCurrentLocation.js  (BARE RN, NE Expo)
 import { Platform } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import {
@@ -13,15 +12,12 @@ const IOS = PERMISSIONS.IOS.LOCATION_WHEN_IN_USE;
 
 export const getCurrentLocation = async () => {
   const perm = Platform.OS === 'ios' ? IOS : ANDROID;
-
-  /* 1. Patikrinam / paprašom leidimo */
   let status = await check(perm);
   if (status === RESULTS.DENIED || status === RESULTS.LIMITED) {
     status = await request(perm);
   }
-  if (status !== RESULTS.GRANTED) return null; // vartotojas nesutiko
+  if (status !== RESULTS.GRANTED) return null;
 
-  /* 2. GPS */
   return new Promise((resolve, reject) => {
     Geolocation.getCurrentPosition(
       p => resolve({

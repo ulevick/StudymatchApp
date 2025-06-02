@@ -22,26 +22,13 @@ import BackgroundReg3_10 from '../../components/BackgroundReg3_10';
 import registration      from '../../styles/registration';
 import global            from '../../styles/global';
 
-/**
- * Reg_Stud7 – studijų informacija
- * --------------------------------
- * • Registracijoje (`totalSteps === 10`) – laukai tušti, *nerašome* į Firestore,
- *   nes vartotojo dokumento dar nėra.
- * • Settings sraute (`totalSteps === 3`) – laukai gali būti perduoti per
- *   route.params arba automatiškai užsipildyti iš Firestore; čia *atnaujiname*
- *   `users/{uid}` dokumentą.
- */
-
 const Reg_Stud7 = ({ route, navigation }) => {
-  /* ───────────── route params ───────────── */
   const {
     email,
     password,
     name,
     birthday,
     gender,
-    originalEmail,
-
     studyLevel:   paramStudyLevel   = '',
     faculty:      paramFaculty      = '',
     studyProgram: paramStudyProgram = '',
@@ -52,17 +39,15 @@ const Reg_Stud7 = ({ route, navigation }) => {
     currentStep = 7,
   } = route.params;
 
-  /* ───────────── state ───────────── */
   const domain            = email.split('@')[1]?.toLowerCase();
   const defaultUniversity = universityMappings[domain] || '';
 
-  const [university]  = useState(defaultUniversity);   // nekinta
+  const [university]  = useState(defaultUniversity);
   const [studyLevel, setStudyLevel]     = useState(paramStudyLevel);
   const [faculty, setFaculty]           = useState(paramFaculty);
   const [studyProgram, setStudyProgram] = useState(paramStudyProgram);
   const [course, setCourse]             = useState(paramCourse);
 
-  /* ───────────── autofill iš Firestore (tik jei tušti) ───────────── */
   useEffect(() => {
     const unsub = authInstance.onAuthStateChanged(async (user) => {
       if (!user) return;
@@ -83,7 +68,6 @@ const Reg_Stud7 = ({ route, navigation }) => {
     return unsub;
   }, []);
 
-  /* ───────────── pasirinkimo duomenys ───────────── */
   const studyLevelOptions = LEVELS;
 
   const facultyOptions =
@@ -104,7 +88,6 @@ const Reg_Stud7 = ({ route, navigation }) => {
 
   const courseOptions = COURSES_BY_LEVEL[studyLevel] || [];
 
-  /* ───────────── progress bar ───────────── */
   const progressAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     Animated.timing(progressAnim, {
@@ -118,11 +101,9 @@ const Reg_Stud7 = ({ route, navigation }) => {
     outputRange: ['0%', '100%'],
   });
 
-  /* ───────────── „Toliau“ ───────────── */
   const handleNext = async () => {
     if (!studyLevel || !faculty || !studyProgram || !course) return;
 
-    /* ----- SETTINGS srautas: atnaujiname profilį ----- */
     if (totalSteps === 3) {
       try {
         const uid = authInstance.currentUser?.uid;
@@ -137,7 +118,6 @@ const Reg_Stud7 = ({ route, navigation }) => {
             verifiedAt: new Date(),
           });
 
-          // jei vartotojas pakeitė el. paštą – sinchronizuojame su Auth
           if (authInstance.currentUser?.email !== email) {
             try { await authInstance.currentUser.updateEmail(email); } catch {}
           }
@@ -151,7 +131,6 @@ const Reg_Stud7 = ({ route, navigation }) => {
       return;
     }
 
-    /* ----- REGISTRACIJOS srautas: jokių Firestore įrašų čia ----- */
     navigation.navigate('Reg_Stud8', {
       email,
       password,
@@ -165,13 +144,11 @@ const Reg_Stud7 = ({ route, navigation }) => {
     });
   };
 
-  /* ───────────── UI helperiai ───────────── */
   const dropdownIcon  = () => (
     <Ionicons name="chevron-down" size={24} color="#7F9CAB" />
   );
   const isNextDisabled = !studyLevel || !faculty || !studyProgram || !course;
 
-  /* ───────────── JSX ───────────── */
   return (
     <View style={registration.wrapper}>
       <BackgroundReg3_10 />

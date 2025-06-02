@@ -1,4 +1,3 @@
-// Reg_EmailSuccess.js
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import PeopleBackground from '../../components/PeopleBackground';

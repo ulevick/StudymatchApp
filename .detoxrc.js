@@ -1,4 +1,3 @@
-/** @type {Detox.DetoxConfig} */
 module.exports = {
   testRunner: {
     args: {
@@ -83,7 +82,7 @@ module.exports = {
   },
   behavior: {
     init: {
-      reinstallApp: false,   // neleisk Detox perrašinėti kas kartą
+      reinstallApp: false,
     },
   },
 

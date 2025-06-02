@@ -1,7 +1,7 @@
 /**
  * __tests__/Messages.full.test.js
  *
- * Deterministic, full‑coverage tests for the “Messages” screen.
+ * Deterministic, full-coverage tests for the “Messages” screen.
  * (Relies on testIDs `match-<uid>` & `conversation-<chatId>`.)
  */
 import React from 'react';
@@ -91,7 +91,7 @@ const renderWithCtx = (ctx) =>
     );
 
 /* ──────────────────────────────────────────────
-   beforeAll → tuštesnė bazė
+   beforeAll → tuštesnė bazė
 ────────────────────────────────────────────── */
 beforeAll(() => {
   mockGetDoc.mockResolvedValue({ exists: false });
@@ -99,7 +99,7 @@ beforeAll(() => {
 });
 
 /* ──────────────────────────────────────────────
-   beforeEach → *iš naujo* sukonfigūruojam mockGetDocs
+   beforeEach → *iš naujo* sukonfigūruojam mockGetDocs
 ────────────────────────────────────────────── */
 const buildMockGetDocs = () => {
   let matchesCalls = 0;
@@ -162,7 +162,7 @@ const buildMockGetDocs = () => {
 };
 
 /* ──────────────────────────────────────────────
-   Chat listener – visada tas pats
+   Chat listener – visada tas pats
 ────────────────────────────────────────────── */
 mockOnSnapshot.mockImplementation((_q, cb) => {
   cb(makeSnap([
@@ -239,15 +239,23 @@ describe('Messages – full coverage', () => {
     });
   });
 
-  it('deletes chat & match on long‑press', async () => {
+  it('deletes chat & match on long-press', async () => {
     mockGetDoc.mockResolvedValueOnce({ exists: true, data: () => ({ likedBy: ['uLiked'] }) });
-    const { getByTestId } = renderWithCtx({ userData: {} });
+    const { getByTestId, getByText } = renderWithCtx({ userData: {} });
+
+    // laukiame, kol atsiras pokalbio eilutė
     await waitFor(() => getByTestId('conversation-chatA'));
 
-    jest.spyOn(Alert, 'alert').mockImplementation((_t, _m, btns) => btns[1].onPress());
+    // atliekame longPress ant pokalbio
+    await act(async () =>
+        fireEvent(getByTestId('conversation-chatA'), 'longPress')
+    );
 
-    await act(async () => fireEvent(getByTestId('conversation-chatA'), 'longPress'));
+    // dabar CustomAlert turėtų būti matomas su mygtuku „Ištrinti“
+    await waitFor(() => getByText('Ištrinti'));
+    fireEvent.press(getByText('Ištrinti'));
 
+    // patikriname, kad deleteDoc buvo kviečiamas teisingais keliais
     await waitFor(() => {
       expect(mockDeleteDoc).toHaveBeenCalledWith(expect.stringContaining('chats/chatA'));
       expect(mockDeleteDoc).toHaveBeenCalledWith(expect.stringContaining('matches/m1'));

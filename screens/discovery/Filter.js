@@ -1,5 +1,3 @@
-// screens/Filter.js
-
 import React, { useState, useContext, useEffect, useCallback } from 'react';
 import {
   View,
@@ -34,7 +32,6 @@ const Filter = ({ navigation }) => {
   const universities = ['Visų universitetų', ...Object.keys(studyPrograms)];
 
   const { userData, setUserData } = useContext(UserContext);
-
   const [gender, setGender] = useState(null);
   const [minAge, setMinAge] = useState(18);
   const [maxAge, setMaxAge] = useState(50);
@@ -47,7 +44,6 @@ const Filter = ({ navigation }) => {
   const [selectedPreferences, setSelectedPreferences] = useState([]);
   const [showModal, setShowModal] = useState(false);
 
-  // Įkraunam pradinius filtro duomenis į state
   useEffect(() => {
     const f = userData?.filter;
     if (!f) return;
@@ -63,7 +59,6 @@ const Filter = ({ navigation }) => {
     setSelectedPreferences(f.filterPreferences ?? []);
   }, [userData]);
 
-  // Funkcija rašyti į Firestore
   const handleSave = async (showAlert = false) => {
     try {
       const userId = authInstance.currentUser?.uid;
@@ -85,20 +80,14 @@ const Filter = ({ navigation }) => {
         filterCourse: course,
         filterPreferences: selectedPreferences,
       };
-
-      // 1) Optimistiškai atnaujiname kontekstą
       setUserData((prev) => ({ ...prev, filter: filterData }));
-
-      // 2) Po debounco įrašome Firestore
       await setDoc(doc(db, 'users', userId), { filter: filterData }, { merge: true });
-
     } catch (err) {
       console.error('Filter save error:', err);
       if (showAlert) Alert.alert('Klaida', 'Nepavyko išsaugoti filtro.');
     }
   };
 
-  // Debounce: laukiame 500ms prieš rašydami į Firestore
   const debouncedSave = useCallback(
       debounce(() => handleSave(false), 500),
       [
@@ -115,7 +104,6 @@ const Filter = ({ navigation }) => {
       ]
   );
 
-  // Kiekvieną kartą keičiasi filtras – paleidžiam debouncedWrite
   useEffect(() => {
     debouncedSave();
     return () => debouncedSave.cancel();
@@ -137,7 +125,6 @@ const Filter = ({ navigation }) => {
           prev.includes(item) ? prev.filter((p) => p !== item) : [...prev, item]
       );
 
-  // Dropdown aiškinimas
   const faculties =
       university &&
       university !== 'Visų universitetų' &&

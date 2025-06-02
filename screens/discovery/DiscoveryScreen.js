@@ -1,5 +1,3 @@
-// screens/DiscoveryScreen.js
-
 import React, {
     useState,
     useCallback,
@@ -51,7 +49,7 @@ export default function DiscoveryScreen({
                                             navigation,
                                             searchType,
                                             renderTabs,
-                                            extraFilter = () => true,   // papildomas filtras (naudojamas tik Roommates)
+                                            extraFilter = () => true,
                                             activeTabKey,
                                         }) {
     const { userData } = useContext(UserContext);
@@ -105,7 +103,6 @@ export default function DiscoveryScreen({
                 if (d.id === userId) return;
                 const data = { id: d.id, ...d.data() };
 
-                // Apskaičiuojam atstumą
                 if (meLoc && data.location) {
                     data.distanceKm = getDistanceKm(
                         meLoc.latitude,
@@ -115,10 +112,7 @@ export default function DiscoveryScreen({
                     );
                 }
 
-                // Suderinamumo balas
                 data.score = computeScore(data, userData, filters);
-
-                // Taikomi filtrai
                 if (
                     applyUserFilter(data, filters, meLoc) &&
                     extraFilter(data, filters, meLoc)
@@ -127,13 +121,12 @@ export default function DiscoveryScreen({
                 }
             });
 
-            // Jei filtras nenaudojamas – rikiuoti pagal suderinamumą
             if (
                 !filters?.filterPreferences?.length &&
                 !filters?.filterAge &&
                 !filters?.filterDistance
             ) {
-                list.sort((a, b) => b.score - a.score); // didėjimo tvarka pagal score
+                list.sort((a, b) => b.score - a.score);
             }
 
             setItems(prev => (initial ? list : [...prev, ...list]));
@@ -145,13 +138,10 @@ export default function DiscoveryScreen({
         }
     }, [makeQuery, userData, userId, extraFilter, preload, items.length]);
 
-
-    // Pirmas fetch
     useEffect(() => {
         if (userId) fetchPage(true);
     }, [userId]);
 
-    // Kai pasikeičia filtras – perpildom
     useEffect(() => {
         if (userId) {
             setCardIndex(0);

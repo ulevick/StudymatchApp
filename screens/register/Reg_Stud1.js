@@ -1,4 +1,3 @@
-// screens/register/Reg_Stud1.js
 import React, { useState, useRef, useEffect } from 'react';
 import {
     View,
@@ -24,16 +23,12 @@ import universityMappings, { allowedDomains } from '../../constants/universityMa
 import global       from '../../styles/global';
 import registration from '../../styles/registration';
 import BackgroundReg1_2 from '../../components/BackgroundReg1_2';
-
-/* ---------- EmailJS (React-Native SDK) ---------- */
 import emailjs from '@emailjs/react-native';
-
 const EMAILJS_SERVICE_ID  = 'service_8824iop';
 const EMAILJS_TEMPLATE_ID = 'template_y5eby3u';
 const EMAILJS_PUBLIC_KEY  = '8r2vK_8mZ3gELdosc';
 
 const Reg_Stud1 = ({ route = {}, navigation }) => {
-    /* ─────── route params ─────── */
     const IS_DETOX = global.detox;
     const {
         totalSteps   = 10,
@@ -47,7 +42,6 @@ const Reg_Stud1 = ({ route = {}, navigation }) => {
         course       = '',
     } = route.params || {};
 
-    /* ─────── state / refs ─────── */
     const [email, setEmail]             = useState(initialEmail);
     const [emailError, setEmailError]   = useState(false);
     const [invalidEmail, setInvalidEmail] = useState(false);
@@ -56,12 +50,10 @@ const Reg_Stud1 = ({ route = {}, navigation }) => {
     const progressAnim = useRef(new Animated.Value(0)).current;
     const [progressDone, setProgressDone] = useState(false);
 
-    /* ---------- EmailJS init ---------- */
     useEffect(() => {
         emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
     }, []);
 
-    /* progress bar */
     useEffect(() => {
         Animated.timing(progressAnim, {
             toValue : currentStep,
@@ -75,7 +67,6 @@ const Reg_Stud1 = ({ route = {}, navigation }) => {
         outputRange: ['0%', '100%'],
     });
 
-    /* ─────── helpers ─────── */
     const validateUniversityEmail = (val) =>
         allowedDomains.some((d) => val.toLowerCase().endsWith(`@${d}`));
 
@@ -96,7 +87,6 @@ const Reg_Stud1 = ({ route = {}, navigation }) => {
             Animated.timing(shakeAnim, { toValue:   0, duration: 50, useNativeDriver: true }),
         ]).start();
 
-    /* ─────── NEXT ─────── */
     const handleNext = async () => {
         if (IS_DETOX) {
             navigation.push('Reg_Stud2', {
@@ -118,7 +108,6 @@ const Reg_Stud1 = ({ route = {}, navigation }) => {
         setEmailError(false);
         setInvalidEmail(false);
 
-        // 1. patikrinam formatą
         if (!validateUniversityEmail(email)) {
             setInvalidEmail(true);
             shake();
@@ -126,7 +115,6 @@ const Reg_Stud1 = ({ route = {}, navigation }) => {
         }
 
         try {
-            // 2. ar jau registruotas?
             const methods = await authInstance.fetchSignInMethodsForEmail(email);
             const dupSnap = await getDocs(query(collection(db, 'users'), where('email', '==', email)));
             const used    = methods.length > 0 || !dupSnap.empty;
@@ -137,7 +125,6 @@ const Reg_Stud1 = ({ route = {}, navigation }) => {
                 return;
             }
 
-            // 3. sukuriam ir įrašom kodą Firestore
             const code = generateVerificationCode();
             await setDoc(doc(collection(db, 'verifications'), email), {
                 email,
@@ -147,19 +134,17 @@ const Reg_Stud1 = ({ route = {}, navigation }) => {
                 university: getUniversityName(email),
             });
 
-            // 4. siunčiam laišką
             await emailjs.send(
                 EMAILJS_SERVICE_ID,
                 EMAILJS_TEMPLATE_ID,
                 {
-                    email,                 // ← sutampa su {{email}} šablone
-                    code,                  // ← {{code}}
+                    email,
+                    code,
                     university: getUniversityName(email),
                 },
                 { publicKey: EMAILJS_PUBLIC_KEY },
             );
 
-            // 5. ➜ Reg_Stud2
             navigation.push('Reg_Stud2', {
                 email,
                 originalEmail,
@@ -179,7 +164,6 @@ const Reg_Stud1 = ({ route = {}, navigation }) => {
 
     const isNextDisabled = email.trim() === '';
 
-    /* ─────── JSX ─────── */
     return (
         <View style={registration.wrapper}>
             <BackgroundReg1_2 />
@@ -202,12 +186,10 @@ const Reg_Stud1 = ({ route = {}, navigation }) => {
                     </View>
                 </View>
 
-                {/* instructions */}
                 <Text style={registration.instruction}>
                     Įvesk savo universitetinį el. paštą, kad patvirtintume, jog esi studentas.
                 </Text>
 
-                {/* input */}
                 <Animated.View style={{ transform: [{ translateX: shakeAnim }] }}>
                     <TextInput
                         testID="email-input"
@@ -240,7 +222,6 @@ const Reg_Stud1 = ({ route = {}, navigation }) => {
                     </Text>
                 )}
 
-                {/* buttons */}
                 <View style={registration.buttonRow}>
                     <TouchableOpacity
                         style={registration.backButton}

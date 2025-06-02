@@ -1,4 +1,3 @@
-// Reg_Stud3.js
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
@@ -94,7 +93,6 @@ const Reg_Stud3 = ({ route, navigation }) => {
     navigation.navigate('Reg_Stud4', { email, password });
   };
 
-  // Disable "Toliau" until both fields have input; errors handle length mismatches
   const isNextDisabled = password.trim().length === 0 || confirmPassword.trim().length === 0;
 
   return (

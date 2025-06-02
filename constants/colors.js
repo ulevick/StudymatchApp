@@ -29,4 +29,5 @@ export default {
     black: '#000000',
     filledicon: '#707F87',
     icon: '#8E9498',
+    timeicon: '#B92114',
 };

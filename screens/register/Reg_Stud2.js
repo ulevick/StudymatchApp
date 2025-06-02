@@ -1,4 +1,3 @@
-// screens/register/Reg_Stud2.js
 import React, { useState, useRef, useEffect } from 'react';
 import {
     View,
@@ -22,7 +21,6 @@ import BackgroundReg1_2 from '../../components/BackgroundReg1_2';
 import registration from '../../styles/registration';
 
 const Reg_Stud2 = ({ route, navigation }) => {
-    /* ─────── route params ─────── */
     const {
         email,
         originalEmail,
@@ -35,16 +33,13 @@ const Reg_Stud2 = ({ route, navigation }) => {
         course       = '',
     } = route.params;
 
-    /* ─────── state / refs ─────── */
     const [code, setCode]       = useState(['', '', '', '', '', '']);
     const [codeError, setCodeError] = useState(false);
-
     const inputs       = useRef([]);
     const shakeAnim    = useRef(new Animated.Value(0)).current;
     const progressAnim = useRef(new Animated.Value(0)).current;
     const [focusedIdx, setFocusedIdx] = useState(0);
 
-    /* ─────── progress bar ─────── */
     useEffect(() => {
         Animated.timing(progressAnim, {
             toValue : currentStep,
@@ -58,9 +53,6 @@ const Reg_Stud2 = ({ route, navigation }) => {
         outputRange: ['0%', '100%'],
     });
 
-    /* ─────── helpers ─────── */
-
-    // išskaido įvestus skaitmenis (pvz. "123456") ir įrašo į laukus
     const fillDigitsFrom = (text, startIdx) => {
         const digits = text.replace(/\D/g, '').slice(0, 6 - startIdx).split('');
         if (digits.length === 0) return;
@@ -69,7 +61,6 @@ const Reg_Stud2 = ({ route, navigation }) => {
         digits.forEach((d, i) => { next[startIdx + i] = d; });
         setCode(next);
 
-        // fokusas → paskutinis užpildytas arba paskutinis laukelis
         const last = startIdx + digits.length - 1;
         if (last < 6 && inputs.current[last]) {
             inputs.current[last].focus();
@@ -78,12 +69,12 @@ const Reg_Stud2 = ({ route, navigation }) => {
     };
 
     const handleChange = (text, idx) => {
-        if (text.length > 1) {          // paste su keliomis raidėmis/skaitmenimis
+        if (text.length > 1) {
             fillDigitsFrom(text, idx);
             return;
         }
 
-        if (!/^\d?$/.test(text)) return; // leidžiam tuščią arba 1 skaitmenį
+        if (!/^\d?$/.test(text)) return;
         const next = [...code];
         next[idx]  = text;
         setCode(next);
@@ -106,7 +97,6 @@ const Reg_Stud2 = ({ route, navigation }) => {
             Animated.timing(shakeAnim, { toValue: 0,   duration: 50, useNativeDriver: true }),
         ]).start();
 
-    /* ─────── verify code ─────── */
     const verify = async () => {
         const fullCode = code.join('');
         if (fullCode.length < 6) {
@@ -124,10 +114,8 @@ const Reg_Stud2 = ({ route, navigation }) => {
                 shake();
                 return;
             }
-
             await updateDoc(docRef, { verified: true });
 
-            // 3-jų žingsnių srautas („Settings“)
             if (totalSteps === 3) {
                 navigation.replace('Reg_Stud7', {
                     email,
@@ -141,7 +129,6 @@ const Reg_Stud2 = ({ route, navigation }) => {
                     course,
                 });
             } else {
-                // 10-ties žingsnių registracijos srautas
                 navigation.navigate('Reg_Stud3', {
                     email,
                     studyLevel,
@@ -156,10 +143,8 @@ const Reg_Stud2 = ({ route, navigation }) => {
         }
     };
 
-    /* ─────── resend code (sutrumpintas) ─────── */
-    const resend = async () => { /* čia palik savo resend implementaciją */ };
+    const resend = async () => { };
 
-    /* ─────── render ─────── */
     const isDisabled = code.join('').length < 6;
 
     return (
@@ -206,7 +191,7 @@ const Reg_Stud2 = ({ route, navigation }) => {
                                 registration.codeInput,
                                 codeError && registration.inputError,
                             ]}
-                            maxLength={6}                       // leidžia įklijuoti visą kodą
+                            maxLength={6}
                             keyboardType="number-pad"
                             value={digit}
                             onChangeText={t => handleChange(t, i)}

@@ -1,4 +1,3 @@
-// EditProfile.js
 import React, { useState, useContext, useEffect } from 'react';
 import {
   View,

@@ -105,4 +105,5 @@ export default StyleSheet.create({
     fontFamily: 'Poppins-Bold',
     fontSize: 14,
   },
+
 });

@@ -1,10 +1,9 @@
-/* global device element by waitFor */
 const { expect: jestExpect } = require('@jest/globals');
-
-describe('NFR-12 – progress bar ≤ 0.5 s', () => {
+const MAX_TIME  = 1000;
+describe('NFR-8 – progress bar ≤ 0.5 s', () => {
     beforeAll(async () => {
         await device.launchApp({ newInstance: true });
-        await element(by.id('main-btn-register')).tap();   // Main → Reg_Stud1
+        await element(by.id('main-btn-register')).tap();
     });
 
     it('animacija baigiasi per ≤ 500 ms', async () => {
@@ -12,8 +11,7 @@ describe('NFR-12 – progress bar ≤ 0.5 s', () => {
 
         await waitFor(element(by.id('progress-done')))
             .toBeVisible()
-            .withTimeout(1000);          // saugi riba, bet laikas matuojam patys
-
+            .withTimeout(MAX_TIME);
         jestExpect(Date.now() - t0).toBeLessThanOrEqual(500);
     });
 });

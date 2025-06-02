@@ -23,7 +23,6 @@ export default function SearchStudents(props) {
             searchType="bendraminciu"
             renderTabs={renderTabs}
             activeTabKey="SearchStudents"
-            /* studentams papildomo filtro nereikia */
         />
     );
 }

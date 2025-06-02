@@ -1,4 +1,3 @@
-// Reg_Stud10.js
 import React, { useState, useContext, useRef, useEffect } from 'react';
 import {
   View,
@@ -10,7 +9,7 @@ import {
 } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { db, authInstance } from '../../services/firebase';
-import { doc, setDoc, collection } from '@react-native-firebase/firestore';
+import { doc, setDoc, serverTimestamp } from '@react-native-firebase/firestore';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { UserContext } from '../../contexts/UserContext';
 import global from '../../styles/global';
@@ -92,17 +91,14 @@ const Reg_Stud10 = ({ route, navigation }) => {
         photos: photoArray,
         university: getUniversityName(email),
         aboutMe: '',
+        verifiedAt: serverTimestamp(),
         createdAt: new Date(),
       };
 
       const ref = doc(db, 'users', firebaseUser.uid);
       await setDoc(ref, fullUserData);
-
-      // ❌ NEREIKIA: setUserData(fullUserData)
-
-      // Toliau perduodam tik reikalingus duomenis UI'ui, bet neperrašom konteksto
       navigation.replace('Reg_StudFinal', {
-        uid: firebaseUser.uid, // būtina perduoti UID, kad Reg_StudFinal žinotų dokumentą
+        uid: firebaseUser.uid,
         email,
         name,
         birthday,

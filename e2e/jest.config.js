@@ -1,4 +1,3 @@
-/** @type {import('@jest/types').Config.InitialOptions} */
 module.exports = {
   rootDir: '..',
   testMatch: ['<rootDir>/e2e/**/*.test.js'],
@@ -9,7 +8,7 @@ module.exports = {
   testEnvironment: 'detox/runners/jest/testEnvironment',
   verbose: true,
   reporters: [
-    'default',                               // keep console output
+    'default',
     [ 'jest-html-reporter', {
       pageTitle:       'E2E Test Report',
       outputPath:      'e2e-report/index.html',
@@ -17,6 +16,6 @@ module.exports = {
       includeConsoleLog: true,
     }
     ],
-    'detox/runners/jest/reporter',           // Detox’s own reporter
+    'detox/runners/jest/reporter',
   ],
 };

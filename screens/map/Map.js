@@ -42,9 +42,7 @@ const buildingLabels = [
 ];
 
 const { width } = Dimensions.get('window');
-const ZOOM_THRESHOLD = 0.004; // adjust as needed
-
-// Extracted backdrop renderer to avoid inline definition
+const ZOOM_THRESHOLD = 0.004;
 const renderBackdrop = props => (
     <BottomSheetBackdrop {...props} appearsOnIndex={0} disappearsOnIndex={-1} />
 );
@@ -73,7 +71,6 @@ export default function MapScreen({ navigation }) {
         requestAnimationFrame(() => sheetRef.current?.present());
     }, []);
 
-    // Extracted to prevent inline arrow in JSX
     const handleTabPress = useCallback(tab => {
         navigation.navigate(tab);
     }, [navigation]);
@@ -95,7 +92,6 @@ export default function MapScreen({ navigation }) {
             </View>
 
             <View style={styles.mapBlock}>
-                {/* --- AUTOCOMPLETE --- */}
                 <GooglePlacesAutocomplete
                     placeholder="Ieškoti adreso…"
                     fetchDetails
@@ -154,7 +150,6 @@ export default function MapScreen({ navigation }) {
                     )}
                 />
 
-                {/* --- FILTER CHIPS --- */}
                 <View style={[styles.chipColumn, { pointerEvents: 'box-none' }]}>
                     {categories.map(c => (
                         <TouchableOpacity
@@ -163,19 +158,19 @@ export default function MapScreen({ navigation }) {
                                 styles.chip,
                                 {
                                     borderColor: c.color,
-                                    backgroundColor: activeCat === c.key ? c.color : '#fff', // NOSONAR
+                                    backgroundColor: activeCat === c.key ? c.color : '#fff',
                                 },
                             ]}
-                            onPress={() => setActiveCat(activeCat === c.key ? null : c.key)} // NOSONAR
+                            onPress={() => setActiveCat(activeCat === c.key ? null : c.key)}
                         >
                             <Icon
                                 name={c.icon}
                                 size={14}
-                                color={activeCat === c.key ? '#fff' : c.color} // NOSONAR
+                                color={activeCat === c.key ? '#fff' : c.color}
                             />
                             <Text style={[
                                 styles.chipLabel,
-                                { color: activeCat === c.key ? '#fff' : '#333' } // NOSONAR
+                                { color: activeCat === c.key ? '#fff' : '#333' }
                             ]}>
                                 {c.label}
                             </Text>
@@ -183,7 +178,6 @@ export default function MapScreen({ navigation }) {
                     ))}
                 </View>
 
-                {/* --- MAP --- */}
                 <MapView
                     ref={mapRef}
                     style={styles.map}
