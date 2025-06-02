@@ -1,4 +1,3 @@
-// screens/Messages.js
 import React, { useEffect, useState, useContext } from 'react';
 import {
     View,
@@ -17,7 +16,6 @@ import {
     deleteDoc,
     writeBatch,
 } from '@react-native-firebase/firestore';
-
 import { db, authInstance } from '../../services/firebase';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
@@ -26,7 +24,6 @@ import { UserContext } from '../../contexts/UserContext';
 import styles from '../../styles/messageStyles';
 import CustomAlert from '../../components/CustomAlert';
 
-/* ---------- Pagalbiniai ---------- */
 const SkeletonBox = ({ width, height, borderRadius = 8, style }) => (
     <View
         style={[
@@ -66,20 +63,15 @@ const Tag = ({ type }) => (
     </View>
 );
 
-/* ---------- Komponentas ---------- */
 export default function Messages({ navigation }) {
     const { userData } = useContext(UserContext);
     const userId = authInstance.currentUser?.uid;
-
     const [loadingLikes, setLoadingLikes] = useState(true);
     const [loadingMatches, setLoadingMatches] = useState(true);
     const [loadingChats, setLoadingChats] = useState(true);
-
-    const [likedByUsers, setLikedByUsers] = useState([]); // pending likes
-    const [matches, setMatches] = useState([]); // nauji match’ai
-    const [conversations, setConversations] = useState([]); // chat’ai
-
-    /* --- būsena gražiam dialogui --- */
+    const [likedByUsers, setLikedByUsers] = useState([]);
+    const [matches, setMatches] = useState([]);
+    const [conversations, setConversations] = useState([]);
     const [alertVisible, setAlertVisible] = useState(false);
     const [pendingDelete, setPendingDelete] = useState({
         chatId: null,
@@ -97,10 +89,8 @@ export default function Messages({ navigation }) {
             setLoadingMatches(true);
             setLoadingChats(true);
 
-            /* ---------- PENDING LIKES ---------- */
             const likesPromise = (async () => {
                 try {
-                    /* like'ai į mane + mano like'ai (tik status='like') */
                     const [toMeSnap, fromMeSnap] = await Promise.all([
                         getDocs(
                             query(
@@ -123,7 +113,6 @@ export default function Messages({ navigation }) {
                         fromMeSnap.docs.map((d) => d.data().to)
                     );
 
-                    /* atmetame jau esamus match’us */
                     const [m1, m2] = await Promise.all([
                         getDocs(
                             query(
@@ -314,7 +303,6 @@ export default function Messages({ navigation }) {
                 );
             };
 
-            /* ---------- Rezultatai ---------- */
             const [likesRes, matchesRes] = await Promise.all([
                 likesPromise,
                 matchesPromise,
@@ -336,7 +324,6 @@ export default function Messages({ navigation }) {
         };
     }, [navigation, userId]);
 
-    /* ---------- Pagalbinės ---------- */
     const findMatchId = (uid) => matches.find((m) => m.otherUid === uid)?.id;
 
     const deleteChatAndUnmatch = async (chatId, otherUid, matchId) => {
@@ -363,7 +350,6 @@ export default function Messages({ navigation }) {
 
     const totalPendingLikes = likedByUsers.length;
 
-    /* ---------- JSX ---------- */
     return (
         <View style={styles.container}>
             <Header onFilterPress={() => navigation.navigate('Filter')} />
@@ -389,8 +375,8 @@ export default function Messages({ navigation }) {
                                     onPress={() =>
                                         navigation.navigate('LikesScreen', {
                                             pendingLikes: likedByUsers,
-                                            myLocation: userData?.location, // kad LikesScreen žinotų Jūsų koordinates
-                                            myBirthday: userData?.birthday, // prireiks, jei skaičiuosite atstumą iki savęs
+                                            myLocation: userData?.location,
+                                            myBirthday: userData?.birthday,
                                         })
                                     }>
                                     <View>
@@ -611,7 +597,6 @@ export default function Messages({ navigation }) {
                 />
             )}
 
-            {/* Gražus trynimo dialogas */}
             <CustomAlert
                 visible={alertVisible}
                 title="Pašalinti pokalbį"

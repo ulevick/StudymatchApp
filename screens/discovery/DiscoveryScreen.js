@@ -54,18 +54,14 @@ export default function DiscoveryScreen({
                                         }) {
     const { userData } = useContext(UserContext);
     const userId = authInstance.currentUser?.uid;
-
     const [items, setItems] = useState([]);
     const [lastDoc, setLastDoc] = useState(null);
     const [loading, setLoading] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
     const [cardIndex, setCardIndex] = useState(0);
-
     const [matchedUser, setMatchedUser] = useState(null);
     const [showMatch, setShowMatch] = useState(false);
-
     const swiperRef = useRef(null);
-
     const makeQuery = useCallback(() => {
         let q = query(
             collection(db, 'users'),

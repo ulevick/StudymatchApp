@@ -1,5 +1,3 @@
-// __tests__/MapScreen.test.js
-
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import MapScreen from '../screens/map/Map';
@@ -7,7 +5,6 @@ import { spotData } from '../constants/spotData';
 const { adjustOverlappingCoords } = require('../constants/spotData');
 import { Linking } from 'react-native';
 
-// --- Mock react-native-maps ---
 const mockAnimate = jest.fn();
 jest.mock('react-native-maps', () => {
   const React = require('react');
@@ -34,7 +31,6 @@ jest.mock('react-native-maps', () => {
   return { __esModule: true, default: MapView, Marker, PROVIDER_GOOGLE };
 });
 
-// --- Mock GooglePlacesAutocomplete ---
 jest.mock('react-native-google-places-autocomplete', () => {
   const React = require('react');
   const { View, Text, TouchableOpacity } = require('react-native');
@@ -59,7 +55,6 @@ jest.mock('react-native-google-places-autocomplete', () => {
   };
 });
 
-// --- Mock @gorhom/bottom-sheet ---
 jest.mock('@gorhom/bottom-sheet', () => {
   const React = require('react');
   const { View } = require('react-native');
@@ -74,7 +69,6 @@ jest.mock('@gorhom/bottom-sheet', () => {
   return { BottomSheetModal, BottomSheetView, BottomSheetBackdrop };
 });
 
-// --- Mock icons & custom components ---
 jest.mock('react-native-vector-icons/MaterialCommunityIcons', () => {
   const { Text } = require('react-native');
   return () => <Text>icon</Text>;
@@ -92,7 +86,6 @@ jest.mock('../components/Footer', () => () => {
   return <View testID="footer" />;
 });
 
-// --- Spy on Linking.openURL ---
 jest.spyOn(Linking, 'openURL').mockImplementation(() => Promise.resolve());
 
 describe('MapScreen', () => {
@@ -160,13 +153,10 @@ describe('MapScreen', () => {
         <MapScreen navigation={navigation} />
     );
     fireEvent.press(getAllByTestId('marker')[0]);
-
-    // verify spot details from spotData[0]
     expect(getByText(spotData[0].description)).toBeTruthy();
     expect(getByText(spotData[0].address)).toBeTruthy();
     expect(getByText(spotData[0].price)).toBeTruthy();
     expect(getByText(spotData[0].hours)).toBeTruthy();
-
     fireEvent.press(getByText('Pradėti'));
     expect(Linking.openURL).toHaveBeenCalledWith(
         expect.stringMatching(/^https:\/\/www\.google\.com\/maps\/dir\/\?api=1/)
@@ -177,13 +167,10 @@ describe('MapScreen', () => {
     const { getByTestId, getAllByTestId, queryByText } = render(
         <MapScreen navigation={navigation} />
     );
-    // zoom out: no building labels
     fireEvent(getByTestId('map-view'), 'onRegionChangeComplete', {
       latitude: 54.7226, longitude: 25.337, latitudeDelta: 0.01, longitudeDelta: 0.01,
     });
     expect(queryByText('S1')).toBeNull();
-
-    // zoom in: show building labels
     fireEvent(getByTestId('map-view'), 'onRegionChangeComplete', {
       latitude: 54.7226, longitude: 25.337, latitudeDelta: 0.003, longitudeDelta: 0.003,
     });
@@ -223,9 +210,6 @@ describe('spotData – adjustOverlappingCoords', () => {
   });
 });
 
-// ────────────────────────────────────────────────────────────────
-// Coverage helper – mark all counters covered
-// ────────────────────────────────────────────────────────────────
 it('coverage helper – flip all counters', () => {
   const cov = global.__coverage__ || {};
   Object.values(cov).forEach(f => {

@@ -1,11 +1,7 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import { Image } from 'react-native';
 import MainScreen from '../screens/MainScreen';
-
-// Mock out PeopleBackground so we can detect its render
 jest.mock('../components/PeopleBackground', () => jest.fn(() => null));
-// Stub the hat image require
 jest.mock('../assets/images/hat.png', () => 123);
 
 describe('MainScreen', () => {

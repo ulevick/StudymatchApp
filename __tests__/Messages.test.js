@@ -1,11 +1,4 @@
-/**
- * __tests__/Messages.full.test.js
- *
- * Deterministic, full-coverage tests for the “Messages” screen.
- * (Relies on testIDs `match-<uid>` & `conversation-<chatId>`.)
- */
 import React from 'react';
-import { Alert } from 'react-native';
 import {
   render, fireEvent, waitFor, act,
 } from '@testing-library/react-native';
@@ -14,9 +7,6 @@ import Messages        from '../screens/messages/Messages';
 import { UserContext } from '../contexts/UserContext';
 import { authInstance } from '../services/firebase';
 
-/* ──────────────────────────────────────────────
-   Firestore mock skeleton
-────────────────────────────────────────────── */
 let mockGetDoc;
 let mockGetDocs;
 let mockOnSnapshot;
@@ -27,7 +17,7 @@ let mockBatchCommit;
 jest.mock('@react-native-firebase/firestore', () => {
   mockGetDoc        = jest.fn();
   mockGetDocs       = jest.fn();
-  mockOnSnapshot    = jest.fn((_q, _cb) => jest.fn()); // returns “unsubscribe”
+  mockOnSnapshot    = jest.fn((_q, _cb) => jest.fn());
   mockDeleteDoc     = jest.fn();
   mockBatchCommit   = jest.fn().mockResolvedValue();
   mockWriteBatchFn  = jest.fn(() => ({
@@ -37,7 +27,7 @@ jest.mock('@react-native-firebase/firestore', () => {
 
   return {
     __esModule: true,
-    collection : jest.fn((_db, ...segments) => ({ _name: segments[0] })), // simplified
+    collection : jest.fn((_db, ...segments) => ({ _name: segments[0] })),
     query      : jest.fn((...a) => a),
     where      : jest.fn((...a) => a),
     doc        : jest.fn((_, ...s) => s.join('/')),
@@ -49,9 +39,6 @@ jest.mock('@react-native-firebase/firestore', () => {
   };
 });
 
-/* ──────────────────────────────────────────────
-   Ancillary mocks
-────────────────────────────────────────────── */
 jest.mock('../services/firebase', () => ({
   authInstance: { currentUser: { uid: 'user123' } },
   db: {},
@@ -64,11 +51,8 @@ jest.mock('../styles/messageStyles', () => ({}));
 jest.mock('../styles/global', () => ({}));
 jest.mock('../constants/colors', () => ({ lightyellow: '#ff0', lightblue: '#0ff' }));
 
-jest.spyOn(console, 'error').mockImplementation(() => {}); // tildom console triukšmą
+jest.spyOn(console, 'error').mockImplementation(() => {});
 
-/* ──────────────────────────────────────────────
-   Helpers
-────────────────────────────────────────────── */
 const fakeDoc = (id, data) => ({ id, data: () => data, ref: `ref/${id}` });
 const makeSnap = (docs) => ({ docs, forEach: (fn) => docs.forEach(fn) });
 
@@ -90,17 +74,11 @@ const renderWithCtx = (ctx) =>
         </UserContext.Provider>,
     );
 
-/* ──────────────────────────────────────────────
-   beforeAll → tuštesnė bazė
-────────────────────────────────────────────── */
 beforeAll(() => {
   mockGetDoc.mockResolvedValue({ exists: false });
   mockGetDocs.mockResolvedValue(makeSnap([]));
 });
 
-/* ──────────────────────────────────────────────
-   beforeEach → *iš naujo* sukonfigūruojam mockGetDocs
-────────────────────────────────────────────── */
 const buildMockGetDocs = () => {
   let matchesCalls = 0;
   let messagesCalls = 0;
@@ -109,7 +87,6 @@ const buildMockGetDocs = () => {
   return (qry) => {
     const col = Array.isArray(qry) ? qry[0] : { _name: '' };
 
-    /* USERS – deterministiškai pagal prašomus UID */
     if (col._name === 'users') {
       const ids =
           Array.isArray(qry) && qry.some((x) => Array.isArray(x) && x[0] === '__name__')
@@ -122,7 +99,6 @@ const buildMockGetDocs = () => {
       );
     }
 
-    /* MATCHES ---------------------------------------------------- */
     if (col._name === 'matches') {
       matchesCalls += 1;
       if (matchesCalls === 1) {
@@ -133,20 +109,17 @@ const buildMockGetDocs = () => {
       return Promise.resolve(makeSnap([]));
     }
 
-    /* MESSAGES (unread query) ----------------------------------- */
     if (col._name === 'messages') {
       messagesCalls += 1;
       if (messagesCalls === 1) {
         return Promise.resolve(makeSnap([fakeDoc('msg1', { readBy: [] })]));
       }
-      // deletion path
       if (messagesCalls === 2) {
         return Promise.resolve(makeSnap([fakeDoc('msgDel', { readBy: [] })]));
       }
       return Promise.resolve(makeSnap([]));
     }
 
-    /* SWIPES ----------------------------------------------------- */
     if (col._name === 'swipes') {
       swipesCalls += 1;
       if (swipesCalls === 1) {
@@ -157,13 +130,10 @@ const buildMockGetDocs = () => {
       return Promise.resolve(makeSnap([]));
     }
 
-    return Promise.resolve(makeSnap([])); // default tuščia
+    return Promise.resolve(makeSnap([]));
   };
 };
 
-/* ──────────────────────────────────────────────
-   Chat listener – visada tas pats
-────────────────────────────────────────────── */
 mockOnSnapshot.mockImplementation((_q, cb) => {
   cb(makeSnap([
     fakeDoc('chatA', {
@@ -175,9 +145,6 @@ mockOnSnapshot.mockImplementation((_q, cb) => {
   return jest.fn();
 });
 
-/* ──────────────────────────────────────────────
-   Tests
-────────────────────────────────────────────── */
 describe('Messages – full coverage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -242,20 +209,12 @@ describe('Messages – full coverage', () => {
   it('deletes chat & match on long-press', async () => {
     mockGetDoc.mockResolvedValueOnce({ exists: true, data: () => ({ likedBy: ['uLiked'] }) });
     const { getByTestId, getByText } = renderWithCtx({ userData: {} });
-
-    // laukiame, kol atsiras pokalbio eilutė
     await waitFor(() => getByTestId('conversation-chatA'));
-
-    // atliekame longPress ant pokalbio
     await act(async () =>
         fireEvent(getByTestId('conversation-chatA'), 'longPress')
     );
-
-    // dabar CustomAlert turėtų būti matomas su mygtuku „Ištrinti“
     await waitFor(() => getByText('Ištrinti'));
     fireEvent.press(getByText('Ištrinti'));
-
-    // patikriname, kad deleteDoc buvo kviečiamas teisingais keliais
     await waitFor(() => {
       expect(mockDeleteDoc).toHaveBeenCalledWith(expect.stringContaining('chats/chatA'));
       expect(mockDeleteDoc).toHaveBeenCalledWith(expect.stringContaining('matches/m1'));
@@ -263,7 +222,6 @@ describe('Messages – full coverage', () => {
     });
   });
 
-  /* Istanbul helper */
   it('coverage helper', () => {
     const cov = global.__coverage__ || {};
     const key = Object.keys(cov).find((k) => k.includes('Messages.js'));

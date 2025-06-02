@@ -1,4 +1,3 @@
-// components/CustomAlert.js
 import React from 'react';
 import {
     Modal,
@@ -22,9 +21,8 @@ const CustomAlert = ({
                          onConfirm,
                          cancelText = 'Atšaukti',
                          confirmText = 'Tęsti',
-                         iconType   = 'time',       // <— čia perduodame 'time' arba 'delete'
+                         iconType   = 'time',
                      }) => {
-    // pasirinkti ikoną pagal iconType
     const iconSource = iconType === 'delete' ? binIcon : clockIcon;
 
     return (

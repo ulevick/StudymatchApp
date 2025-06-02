@@ -1,4 +1,3 @@
-// __tests__/CustomDropdown.test.js
 import React from 'react';
 import {
     render,
@@ -8,21 +7,18 @@ import {
 import { TouchableOpacity } from 'react-native';
 import CustomDropdown from '../components/CustomDropdown';
 
-/* mock Ionicons so Jest doesn’t need native bindings */
 jest.mock('react-native-vector-icons/Ionicons', () => props => {
     const React = require('react');
     const { Text } = require('react-native');
     return <Text>{props.name}</Text>;
 });
 
-/* titles copied from spotData for realism */
 const ITEMS = [
     'Spausdintuvas',
     'Tylos / Poilsio zona',
     'Pigus pietūs / Mikrobangės',
 ];
 
-/* helper: nth TouchableOpacity in the tree */
 const nthTouchable = (utils, idx) =>
     utils.UNSAFE_getAllByType(TouchableOpacity)[idx];
 
@@ -55,10 +51,10 @@ describe('CustomDropdown – full domain-specific coverage', () => {
             />,
         );
 
-        fireEvent.press(nthTouchable(utils, 0));          // open dropdown
+        fireEvent.press(nthTouchable(utils, 0));
         expect(utils.getByText('Spausdintuvas')).toBeTruthy();
 
-        fireEvent.press(nthTouchable(utils, 1));          // tap overlay
+        fireEvent.press(nthTouchable(utils, 1));
         await waitFor(() => {
             expect(utils.queryByText('Spausdintuvas')).toBeNull();
         });
@@ -67,7 +63,7 @@ describe('CustomDropdown – full domain-specific coverage', () => {
 
     it('selects an item → onSelect fires and label turns black', async () => {
         let selected = null;
-        let rerenderFn;               // will be filled after initial render
+        let rerenderFn;
 
         const onSelect = jest.fn(item => {
             selected = item;
@@ -81,7 +77,6 @@ describe('CustomDropdown – full domain-specific coverage', () => {
             );
         });
 
-        /* initial render */
         const utils = render(
             <CustomDropdown
                 label="Pasirinkite"
@@ -90,20 +85,14 @@ describe('CustomDropdown – full domain-specific coverage', () => {
                 onSelect={onSelect}
             />,
         );
-        rerenderFn = utils.rerender;  // capture for later
-
-        // open dropdown and choose second item
+        rerenderFn = utils.rerender;
         fireEvent.press(nthTouchable(utils, 0));
         fireEvent.press(utils.getByText('Tylos / Poilsio zona'));
-
         expect(onSelect).toHaveBeenCalledWith('Tylos / Poilsio zona');
 
-        // modal gone
         await waitFor(() =>
             expect(utils.queryByText('Spausdintuvas')).toBeNull(),
         );
-
-        // label updated & color black
         const newLabel = utils.getByText('Tylos / Poilsio zona');
         const style = Array.isArray(newLabel.props.style)
             ? Object.assign({}, ...newLabel.props.style)

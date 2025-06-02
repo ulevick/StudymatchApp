@@ -1,5 +1,3 @@
-// src/screens/settings/Settings.js
-
 import React, { useContext, useEffect, useState } from 'react';
 import {
     View,
@@ -182,8 +180,6 @@ const Settings = ({ navigation }) => {
                     navigation.navigate(tab);
                 }}
             />
-
-            {/* Renew alert – rodome laikrodžio ikoną ir mygtukas „Atnaujinti“ */}
             <CustomAlert
                 visible={showRenewAlert}
                 iconType="time"
@@ -194,8 +190,6 @@ const Settings = ({ navigation }) => {
                 onClose={() => setShowRenewAlert(false)}
                 onConfirm={handleRenew}
             />
-
-            {/* Delete confirm alert – rodome šiukšlinės ikoną ir mygtukas „Ištrinti“ */}
             <CustomAlert
                 visible={customConfirmVisible}
                 iconType="delete"
@@ -206,8 +200,6 @@ const Settings = ({ navigation }) => {
                 onClose={() => setCustomConfirmVisible(false)}
                 onConfirm={confirmDelete}
             />
-
-            {/* Error alert – tik „Gerai“ mygtukas */}
             <CustomAlert
                 visible={errorAlert.visible}
                 cancelText="Gerai"

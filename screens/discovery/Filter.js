@@ -80,8 +80,10 @@ const Filter = ({ navigation }) => {
         filterCourse: course,
         filterPreferences: selectedPreferences,
       };
+
       setUserData((prev) => ({ ...prev, filter: filterData }));
       await setDoc(doc(db, 'users', userId), { filter: filterData }, { merge: true });
+
     } catch (err) {
       console.error('Filter save error:', err);
       if (showAlert) Alert.alert('Klaida', 'Nepavyko išsaugoti filtro.');

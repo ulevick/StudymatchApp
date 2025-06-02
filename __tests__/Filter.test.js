@@ -1,4 +1,3 @@
-// __tests__/Filter.test.js
 import React from 'react';
 import { Text, TouchableOpacity } from 'react-native';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
@@ -7,7 +6,6 @@ import { UserContext } from '../contexts/UserContext';
 import { authInstance, db } from '../services/firebase';
 import { doc, setDoc } from '@react-native-firebase/firestore';
 
-// --- Mock out all native/3rd-party deps ---
 jest.mock('@ptomasroos/react-native-multi-slider', () => {
   const React = require('react');
   const { TouchableOpacity, Text } = require('react-native');
@@ -15,7 +13,7 @@ jest.mock('@ptomasroos/react-native-multi-slider', () => {
       <TouchableOpacity
           testID={testID || `multi-slider-${values.join('-')}`}
           onPress={() => {
-            onValuesChange(values.map(v => v + 1)); // bump every value by 1
+            onValuesChange(values.map(v => v + 1));
           }}
       >
         <Text>Slider</Text>
@@ -24,7 +22,6 @@ jest.mock('@ptomasroos/react-native-multi-slider', () => {
 });
 
 jest.mock('react-native-vector-icons/Ionicons', () => 'Icon');
-
 jest.mock('../components/CustomDropdown', () => {
   const React = require('react');
   const { TouchableOpacity, Text } = require('react-native');
@@ -43,7 +40,6 @@ jest.mock('../components/CustomDropdown', () => {
   );
 });
 
-// --- Fixed named‐export mocks ---
 jest.mock('../constants/preferencesData', () => ({
   preferencesData: [
     { title: 'Group1', items: ['Item1', 'Item2'] },
@@ -92,7 +88,6 @@ describe('Filter screen', () => {
 
   beforeEach(() => {
     navigation = { goBack: jest.fn() };
-    // stub’as, kurį tiesiog perduosime context’ui
     setUserData = jest.fn();
     doc.mockClear();
     setDoc.mockClear();
@@ -109,18 +104,11 @@ describe('Filter screen', () => {
 
   it('renders default UI correctly', () => {
     const { getByText, queryByTestId, getAllByText } = renderFilter();
-
-    // Header
     getByText('Filtro nustatymai');
-    // Default age labels
     getByText('18 m.');
     getByText('50 m.');
-
-    // Distance default (there are two "Neriboti" texts; at least one must exist)
     const neribotiLabels = getAllByText('Neriboti');
     expect(neribotiLabels.length).toBeGreaterThanOrEqual(1);
-
-    // No modal visible
     expect(queryByTestId('modal-back-button')).toBeNull();
   });
 
@@ -140,9 +128,7 @@ describe('Filter screen', () => {
     fireEvent.press(getByTestId('back-button'));
 
     await waitFor(() => {
-      // doc turi būti iškviestas taip:
       expect(doc).toHaveBeenCalledWith('mockDb', 'users', 'u123');
-      // setDoc turi gauti to, ką doc() sugrąžina (undefined mūsų moke)
       expect(setDoc).toHaveBeenCalledWith(
           undefined,
           {
@@ -167,17 +153,11 @@ describe('Filter screen', () => {
 
   it('updates age and distance sliders and can reset distance', () => {
     const { getByTestId, getByText, getAllByText } = renderFilter();
-
-    // Age slider 18-50 → press → values become [19,51]
     fireEvent.press(getByTestId('multi-slider-18-50'));
     getByText('19 m.');
     getByText('51 m.');
-
-    // Distance slider 100(default) → press → becomes 101 km
     fireEvent.press(getByTestId('multi-slider-100'));
     getByText('101 km');
-
-    // Reset distance → should show "Neriboti" again
     fireEvent.press(getByTestId('reset-distance-button'));
     const neribotiAfterReset = getAllByText('Neriboti');
     expect(neribotiAfterReset.length).toBeGreaterThanOrEqual(1);
@@ -186,23 +166,14 @@ describe('Filter screen', () => {
   it('cascades through all dropdowns', () => {
     const { getByTestId } = renderFilter();
 
-    // University
     fireEvent.press(getByTestId('dropdown-Universitetas-Visų universitetų'));
     getByTestId('dropdown-Universitetas-Uni1');
-
-    // Level
     fireEvent.press(getByTestId('dropdown-Studijų lygis-Visų lygių'));
     getByTestId('dropdown-Studijų lygis-Level1');
-
-    // Faculty
     fireEvent.press(getByTestId('dropdown-Fakultetas-Visų fakultetų'));
     getByTestId('dropdown-Fakultetas-Faculty1');
-
-    // Study Program
     fireEvent.press(getByTestId('dropdown-Studijų kryptis-Visų krypčių'));
     getByTestId('dropdown-Studijų kryptis-Program1');
-
-    // Course
     fireEvent.press(getByTestId('dropdown-Kursas-Visų kursų'));
     getByTestId('dropdown-Kursas-Courselbl1');
   });
@@ -210,21 +181,13 @@ describe('Filter screen', () => {
   it('opens preferences modal, toggles an item, and closes it', async () => {
     authInstance.currentUser = { uid: 'u123' };
     const { getByTestId, getByText, queryByText } = renderFilter();
-
-    // Open modal
     fireEvent.press(getByTestId('open-modal-button'));
     getByTestId('modal-back-button');
     getByText('Pasirinkite pomėgius');
-
-    // Toggle one preference
     fireEvent.press(getByText('Item1'));
-
-    // Close modal
     fireEvent.press(getByTestId('modal-back-button'));
     await waitFor(() => {
-      // main screen should now show the selected chip
       getByText('Item1');
-      // modal gone
       expect(queryByText('Pasirinkite pomėgius')).toBeNull();
     });
   });
@@ -243,23 +206,16 @@ describe('Filter screen', () => {
       filterPreferences: ['Item2'],
     };
     const { getByText, getByTestId, queryByTestId } = renderFilter({ filter: preset });
-
-    // Gender
     getByTestId('dropdown-Rodyti tik-Female');
-    // Age
     getByText('20 m.');
     getByText('30 m.');
-    // Distance
     getByText('10 km');
-    // University & friends
     getByTestId('dropdown-Universitetas-Uni1');
     getByTestId('dropdown-Studijų lygis-Level1');
     getByTestId('dropdown-Fakultetas-Faculty1');
     getByTestId('dropdown-Studijų kryptis-Program1');
     getByTestId('dropdown-Kursas-Courselbl1');
-    // Prefs chip
     getByText('Item2');
-    // Modal still closed
     expect(queryByTestId('modal-back-button')).toBeNull();
   });
 });

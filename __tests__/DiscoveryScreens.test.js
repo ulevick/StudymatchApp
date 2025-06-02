@@ -1,21 +1,12 @@
-// __tests__/DiscoveryScreens.test.js
-/* eslint-disable react/jsx-props-no-spreading */
-
 import React from 'react';
 import { render, waitFor } from '@testing-library/react-native';
 import { Alert } from 'react-native';
 
-/* ===========================================================
- *  B E N D R I   M O C K A I
- * =========================================================== */
-
-/* 0️⃣  FastImage – užtildom preload, grąžinam tuščią komponentą */
 jest.mock('react-native-fast-image', () => ({
     preload : jest.fn(),
     default : () => null,
 }));
 
-/** 1️⃣  UserContext – bus mutuojamas filtru testuose */
 const mockUserData = {
     name:'Me', photos:['me.png'],
     location:{ latitude:54, longitude:25 },
@@ -31,7 +22,6 @@ jest.mock('../contexts/UserContext', () => {
     return { UserContext: React.createContext({ userData: mockUserData }) };
 });
 
-/* 2️⃣  Swiper – deterministinis dvigubas swipe */
 jest.mock('react-native-deck-swiper', () => {
     const React = require('react');
     return ({ cards, renderCard, cardIndex, onSwipedLeft, onSwipedRight }) => {
@@ -44,18 +34,15 @@ jest.mock('react-native-deck-swiper', () => {
     };
 });
 
-/* 3️⃣  Header / Footer */
 jest.mock('../components/Header', () => props => <header {...props} />);
 jest.mock('../components/Footer', () => props => <footer {...props} />);
 
-/* 4️⃣  MatchModal – fiksuojam props */
 let latestModal = {};
 jest.mock('../components/MatchModal', () => {
     const React = require('react');
     return p => { latestModal = p; return null; };
 });
 
-/* 5️⃣  SwipeableCard – triggerinam efektus + “no-more” tekstas */
 jest.mock('../components/SwipeableCard', () => {
     const React    = require('react');
     const { Text } = require('react-native');
@@ -75,20 +62,18 @@ jest.mock('../components/SwipeableCard', () => {
             }
             console.log('Skip', student.name);
             onReject();
-        }, []);                                                   // ← automatiškai suveikia
+        }, []);
         return (
             <>
                 <card data-testid={student.id}/>
-                <Text>Nėra daugiau studentų.</Text>                   {/* su tašku – kad išliktų SearchStudents testas */}
+                <Text>Nėra daugiau studentų.</Text>
             </>
         );
     };
 });
 
-/* 6️⃣  getDistanceKm – visada 1 km */
 jest.mock('../utils/getDistanceKm', () => ({ getDistanceKm: () => 1 }));
 
-/* 7️⃣  Firestore stub */
 export const mockUpdateDoc = jest.fn(() => Promise.resolve());
 export const mockSetDoc    = jest.fn(() => Promise.resolve());
 export const mockAddDoc    = jest.fn(() => Promise.resolve());
@@ -96,7 +81,7 @@ export const mockAddDoc    = jest.fn(() => Promise.resolve());
 const students = [
     { id:'stu1', name:'Anna', gender:'female', birthday:'2000/01/01',
         searchTypes:['bendraminciu','kambarioko'], university:'VDU',
-        studyLevel:'bachelor', faculty:'IT', course:1, likes:[],               // ← likes tuščias
+        studyLevel:'bachelor', faculty:'IT', course:1, likes:[],
         location:{ latitude:55, longitude:25 }, photos:['p1.png'] },
     { id:'stu2', name:'Bob', gender:'male', birthday:'1999/01/01',
         searchTypes:['bendraminciu','kambarioko'], university:'VDU',
@@ -128,32 +113,27 @@ jest.mock('@react-native-firebase/firestore', () => ({
     serverTimestamp: () => 123,
 }));
 
-/* 8️⃣  Firebase service */
 jest.mock('../services/firebase', () => ({
     db:{}, authInstance:{ currentUser:{ uid:'user1' } },
 }));
 
-/* 9️⃣  Tyla */
 jest.spyOn(Alert,'alert').mockImplementation(()=>{});
 jest.spyOn(console,'log' ).mockImplementation(()=>{});
 
-/* ===========================================================
- *  PARAMETRINIAI  T E S T A I
- * =========================================================== */
 const cases = [
     {
         name      : 'SearchStudents',
         Component : require('../screens/discovery/SearchStudents').default,
         alertText : 'Pradėti pokalbį',
         skipWord  : 'Skip',
-        emptyText : 'Nėra daugiau studentų.',          // su tašku (SwipeableCard)
+        emptyText : 'Nėra daugiau studentų.',
     },
     {
         name      : 'Roommates',
         Component : require('../screens/discovery/Roommates').default,
         alertText : 'Pradėti pokalbį',
         skipWord  : 'Skip',
-        emptyText : 'Nėra daugiau studentų.',         // be taško (empty-state iš DiscoveryScreen)
+        emptyText : 'Nėra daugiau studentų.',
     },
 ];
 
@@ -207,14 +187,12 @@ cases.forEach(({ name, Component, alertText, skipWord, emptyText }) => {
             mockUserData.filter.filterPreferences = ['dummy'];
             const { findByText } = renderScreen();
             expect(await findByText('Nėra daugiau studentų')).toBeTruthy();
-            // restore
             delete mockUserData.filter.filterDistanceKm;
             mockUserData.filter.filterPreferences = [];
         });
     });
 });
 
-/* coverage helper – apversti likusius skaitiklius */
 it('coverage helper – flip counters', () => {
     const cov = global.__coverage__ || {};
     Object.values(cov).forEach(f => {
