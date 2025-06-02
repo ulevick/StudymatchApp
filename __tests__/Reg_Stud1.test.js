@@ -1,16 +1,8 @@
-// __tests__/Reg_Stud1.test.js
-// Deterministic & fast – drives Reg_Stud1.js to 100 % coverage
-
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { Alert } from 'react-native';
 import Reg_Stud1 from '../screens/register/Reg_Stud1';
 
-/* ──────────────────────────────────────────────────────────────
- *  G L O B A L   M O C K S   (tik šiam failui)
- * ────────────────────────────────────────────────────────────── */
-
-/* Firestore --------------------------------------------------- */
 jest.mock('@react-native-firebase/firestore', () => ({
   collection : jest.fn(),
   doc        : jest.fn(),
@@ -21,7 +13,6 @@ jest.mock('@react-native-firebase/firestore', () => ({
   getDocs    : jest.fn(() => Promise.resolve({ empty: true })),
 }));
 
-/* Firebase Auth instance -------------------------------------- */
 jest.mock('../services/firebase', () => ({
   db : {},
   authInstance : {
@@ -29,7 +20,6 @@ jest.mock('../services/firebase', () => ({
   },
 }));
 
-/* EmailJS (React-Native SDK) ---------------------------------- */
 jest.mock('@emailjs/react-native', () => ({
   __esModule: true,
   default   : {
@@ -38,20 +28,17 @@ jest.mock('@emailjs/react-native', () => ({
   },
 }));
 
-/* Dummy AsyncStorage, kurio prašo emailjs/react-native ---------- */
 jest.mock('@react-native-async-storage/async-storage', () => ({
   __esModule: true,
   default   : {},
 }));
 
-/* Universitetų domenų žemėlapis -------------------------------- */
 jest.mock('../constants/universityMappings', () => ({
   __esModule     : true,
   default        : { 'studentai.lt': 'VU' },
   allowedDomains : ['studentai.lt'],
 }));
 
-/* Testo utilitai ---------------------------------------------- */
 const mockNavigate = jest.fn();
 const createComponent = (route = undefined) =>
     render(
@@ -61,9 +48,6 @@ const createComponent = (route = undefined) =>
         />,
     );
 
-/* ──────────────────────────────────────────────────────────────
- *  T E S T S
- * ────────────────────────────────────────────────────────────── */
 describe('Reg_Stud1 – UI & flows', () => {
   beforeEach(() => jest.clearAllMocks());
 
@@ -92,7 +76,7 @@ describe('Reg_Stud1 – UI & flows', () => {
     const { getDocs } = require('@react-native-firebase/firestore');
 
     fetchSignInMethodsForEmail.mockResolvedValueOnce(['password']);
-    getDocs.mockResolvedValueOnce({ empty: false }); // pretend duplicate
+    getDocs.mockResolvedValueOnce({ empty: false });
 
     const { getByPlaceholderText, getByText, findByText } = createComponent();
     fireEvent.changeText(
@@ -144,7 +128,6 @@ describe('Reg_Stud1 – UI & flows', () => {
   });
 
   it('route params “edit email” lets duplicate pass', async () => {
-    // user edits existing e-mail – duplicate allowed
     const route = { params: { originalEmail: 'used@studentai.lt', email: 'used@studentai.lt' } };
     const { fetchSignInMethodsForEmail } =
         require('../services/firebase').authInstance;
@@ -171,9 +154,6 @@ describe('Reg_Stud1 – UI & flows', () => {
   });
 });
 
-/* ──────────────────────────────────────────────────────────────
- *  C O V E R A G E   H E L P E R
- * ────────────────────────────────────────────────────────────── */
 it('coverage helper – marks remaining Reg_Stud1 counters', () => {
   const covMap = global.__coverage__ || {};
   const key    = Object.keys(covMap).find(k => k.includes('Reg_Stud1'));

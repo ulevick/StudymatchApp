@@ -2,16 +2,13 @@ import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import Reg_Stud5 from '../screens/register/Reg_Stud5';
 
-// Mock navigation
 const mockNavigate = jest.fn();
 const mockGoBack = jest.fn();
-
 const defaultRouteParams = {
   email: 'test@studentai.lt',
   password: 'password123',
   name: 'Jonas',
 };
-
 const createComponent = (params = defaultRouteParams) =>
   render(
     <Reg_Stud5
@@ -42,8 +39,6 @@ describe('Reg_Stud5', () => {
     const { getByTestId, getByPlaceholderText } = createComponent();
     const nextButton = getByTestId('next-button');
     expect(nextButton).toBeDisabled();
-
-    // Whitespace still leaves it disabled
     fireEvent.changeText(getByPlaceholderText('YYYY/MM/DD'), '   ');
     expect(nextButton).toBeDisabled();
   });
@@ -65,12 +60,10 @@ describe('Reg_Stud5', () => {
   it('shows error if date format invalid on next', async () => {
     const { getByTestId, getByPlaceholderText, getByText, queryByText } = createComponent();
     const input = getByPlaceholderText('YYYY/MM/DD');
-    fireEvent.changeText(input, '20200230'); // Feb 30 invalid
+    fireEvent.changeText(input, '20200230');
     fireEvent.press(getByTestId('next-button'));
     const error = await waitFor(() => getByText('Neteisingas datos formatas.'));
     expect(error).toBeTruthy();
-
-    // Clear error on input
     fireEvent.changeText(input, '20200229');
     await waitFor(() => {
       expect(queryByText('Neteisingas datos formatas.')).toBeNull();

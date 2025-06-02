@@ -1,6 +1,3 @@
-/**
- * 100 % coverage for UserContext
- */
 import React from 'react';
 import { render, waitFor } from '@testing-library/react-native';
 import { Text, Alert } from 'react-native';
@@ -12,7 +9,6 @@ import {
   doc as mockDoc,
 } from '@react-native-firebase/firestore';
 
-/* ─────────── mocks ─────────── */
 jest.mock('../services/firebase', () => ({
   authInstance: { onAuthStateChanged: jest.fn(), currentUser: null },
   db: {},
@@ -22,7 +18,6 @@ jest.mock('@react-native-firebase/firestore', () => ({
   onSnapshot: jest.fn(),
 }));
 
-/* helper that prints context into a <Text> */
 const Printer = () => (
   <UserContext.Consumer>
     {({ userData, loading }) => (
@@ -39,29 +34,24 @@ describe('UserContext', () => {
     authInstance.currentUser = null;
   });
 
-  /* 1️⃣ logged-out branch */
   it('shows null when no user is logged in', async () => {
     const unsubAuth = jest.fn();
     authInstance.onAuthStateChanged.mockImplementation(cb => {
-      cb(null);            // fire callback with "no user"
-      return unsubAuth;    // return unsubscribe fn
+      cb(null);
+      return unsubAuth;
     });
-
     const { getByTestId, unmount } = render(
       <UserProvider>
         <Printer />
       </UserProvider>,
     );
-
     await waitFor(() =>
       expect(getByTestId('out').props.children).toBe('null'),
     );
-
-    unmount();                               // trigger cleanup
-    expect(unsubAuth).toHaveBeenCalled();    // unsubscribed correctly
+    unmount();
+    expect(unsubAuth).toHaveBeenCalled();
   });
 
-  /* 2️⃣ login + matching UID snapshot */
   it('stores Firestore data when UID matches', async () => {
     const fakeUser = { uid: 'uid123' };
     const unsubAuth = jest.fn();
@@ -98,7 +88,6 @@ describe('UserContext', () => {
     expect(unsubDoc).toHaveBeenCalled();
   });
 
-  /* 3️⃣ login + mismatching UID snapshot (branch not setting data) */
   it('ignores snapshot when UID differs', async () => {
     const fakeUser = { uid: 'uidX' };
     authInstance.onAuthStateChanged.mockImplementation(cb => {
@@ -111,7 +100,7 @@ describe('UserContext', () => {
     mockOnSnapshot.mockImplementation((ref, cb) => {
       cb({
         exists: true,
-        id    : 'otherUid',           // different UID
+        id    : 'otherUid',
         data  : () => ({ name: 'Bob' }),
       });
       return jest.fn();
@@ -128,7 +117,6 @@ describe('UserContext', () => {
     );
   });
 
-  /* 4️⃣ Firestore snapshot with .exists === false */
   it('handles non-existent doc gracefully', async () => {
     const fakeUser = { uid: 'uidY' };
     authInstance.onAuthStateChanged.mockImplementation(cb => {

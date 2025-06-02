@@ -1,35 +1,22 @@
-/* ─────────────────────────────────────────────
- * 1)  Mocks (RUN BEFORE importing the component)
- * ───────────────────────────────────────────── */
 const panConfigs = [];
 
-/* Ionicons → icon text */
 jest.mock('react-native-vector-icons/Ionicons', () => props => {
     const React = require('react');
     const { Text } = require('react-native');
     return <Text>{props.name}</Text>;
 });
 
-/* make Animated helpers synchronous */
 import { Animated, PanResponder } from 'react-native';
 
 jest.spyOn(Animated, 'parallel').mockImplementation(() => ({ start: cb => cb && cb() }));
 jest.spyOn(Animated, 'spring').mockImplementation(() => ({ start: cb => cb && cb() }));
 jest.spyOn(Animated, 'timing').mockImplementation(() => ({ start: cb => cb && cb() }));
-
-/* PanResponder.create mock
-   – captures every config object so the tests can
-     access onPanResponderRelease, etc. */
 jest.spyOn(PanResponder, 'create').mockImplementation(config => {
     panConfigs.push(config);
-    /* Return the minimal shape the component expects:
-       { panHandlers: <whatever you pass to the component> } */
+
     return { panHandlers: config };
 });
 
-/* ─────────────────────────────────────────────
- * 2)  Imports AFTER mocks
- * ───────────────────────────────────────────── */
 import React from 'react';
 import {
     render,
@@ -44,9 +31,6 @@ import {
 } from 'react-native';
 import SwipeableCard from '../components/SwipeableCard';
 
-/* ─────────────────────────────────────────────
- * 3)  Test data & helpers
- * ───────────────────────────────────────────── */
 const calcAge = jest.fn(() => 25);
 const baseStudent = {
     id: 's1',
@@ -78,9 +62,6 @@ const renderCard = (ov = {}, h = {}) =>
         />,
     );
 
-/* ─────────────────────────────────────────────
- * 4)  Tests
- * ───────────────────────────────────────────── */
 describe('SwipeableCard – 100 % coverage', () => {
     beforeEach(() => {
         panConfigs.length = 0;
@@ -103,9 +84,9 @@ describe('SwipeableCard – 100 % coverage', () => {
 
     it('vertical pan expands & collapses sheet', () => {
         const utils = renderCard();
-        const vPan = panConfigs[0];             // captured from the mock
-        vPan.onPanResponderRelease(null, { dy: -200 }); // expand
-        vPan.onPanResponderRelease(null, { dy:  200 }); // collapse
+        const vPan = panConfigs[0];
+        vPan.onPanResponderRelease(null, { dy: -200 });
+        vPan.onPanResponderRelease(null, { dy:  200 });
         expect(utils.UNSAFE_getAllByType(ScrollView).length).toBe(1);
     });
 
@@ -113,10 +94,8 @@ describe('SwipeableCard – 100 % coverage', () => {
         const handlers = makeHandlers();
         renderCard({}, handlers);
         const hPan = panConfigs[1];
-
         hPan.onPanResponderRelease(null, { dx: -130 });
         expect(handlers.onReject).toHaveBeenCalledTimes(1);
-
         hPan.onPanResponderRelease(null, { dx: 130 });
         expect(handlers.onLike).toHaveBeenCalledTimes(1);
     });
@@ -124,12 +103,10 @@ describe('SwipeableCard – 100 % coverage', () => {
     it('buttons trigger handler props', () => {
         const h = makeHandlers();
         const utils = renderCard({}, h);
-
         const btns = utils.UNSAFE_getAllByType(TouchableOpacity).filter(b =>
             within(b).queryByText(/arrow-undo|close|heart|paper-plane/),
         );
         btns.forEach(b => fireEvent.press(b));
-
         expect(h.onReturn ).toHaveBeenCalled();
         expect(h.onReject ).toHaveBeenCalledTimes(1);
         expect(h.onLike   ).toHaveBeenCalledTimes(1);
@@ -141,7 +118,7 @@ describe('SwipeableCard – 100 % coverage', () => {
         sv.props.onScrollBeginDrag();
         sv.props.onScrollEndDrag();
         sv.props.onMomentumScrollEnd();
-        expect(true).toBe(true); // reached lines
+        expect(true).toBe(true);
     });
 
     it('optional sections render & disappear with data changes', () => {
@@ -151,7 +128,6 @@ describe('SwipeableCard – 100 % coverage', () => {
         );
         expect(dots.length).toBeGreaterThan(0);
         expect(queryByText('Apie Mane')).toBeTruthy();
-
         rerender(
             <SwipeableCard
                 student={{ ...baseStudent, aboutMe: '', preferences: {} }}

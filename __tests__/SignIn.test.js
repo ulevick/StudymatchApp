@@ -1,6 +1,3 @@
-// __tests__/SignIn.test.js
-// 100% coverage for screens/auth/SignIn.js
-
 import React from 'react';
 import {
   render, fireEvent, waitFor,
@@ -8,20 +5,17 @@ import {
 import { TextInput, TouchableOpacity } from 'react-native';
 import SignIn from '../screens/register/SignIn';
 
-/* ── trivial UI/asset mocks ───────────────────────────────────────── */
 jest.mock('../assets/images/hat.png',          () => 'hatImg');
 jest.mock('react-native-vector-icons/Ionicons',() => 'Icon');
 jest.mock('../components/PeopleBackground',    () => () => null);
 jest.mock('../styles/authStyles', () => new Proxy({}, { get: () => ({}) }));
 jest.mock('../styles/global',     () => new Proxy({}, { get: () => ({}) }));
 
-/* ── Firebase auth mock ───────────────────────────────────────────── */
 const mockSignIn = jest.fn();
 jest.mock('@react-native-firebase/auth', () => ({
   signInWithEmailAndPassword: (...args) => mockSignIn(...args),
 }));
 
-/* ── Firestore mocks ─────────────────────────────────────────────── */
 const mockUpdateDoc = jest.fn(() => Promise.resolve());
 const mockGetDoc    = jest.fn(() => Promise.resolve({
   data: () => ({ verifiedAt: { toDate: () => new Date() } }),
@@ -35,10 +29,8 @@ jest.mock('@react-native-firebase/firestore', () => ({
   GeoPoint       : function (lat, lng) { this.lat = lat; this.lng = lng; },
 }));
 
-/* ── Firebase config stub ─────────────────────────────────────────── */
 jest.mock('../services/firebase', () => ({ authInstance: {} }));
 
-/* ── Location util mock – exposes setter to tests ─────────────────── */
 jest.mock('../utils/getCurrentLocation', () => {
   let loc = { latitude: 1, longitude: 2 };
   return {
@@ -48,11 +40,9 @@ jest.mock('../utils/getCurrentLocation', () => {
   };
 });
 
-/* ── helpers ──────────────────────────────────────────────────────── */
 const makeNav = () => ({ replace: jest.fn() });
 const mount   = (nav = makeNav()) => render(<SignIn navigation={nav} />);
 
-/* ── T E S T S ────────────────────────────────────────────────────── */
 describe('SignIn screen', () => {
   const { _setMockLocation, getCurrentLocation } = require('../utils/getCurrentLocation');
 
@@ -73,7 +63,7 @@ describe('SignIn screen', () => {
     const pwdFieldBefore = UNSAFE_getAllByType(TextInput)[1];
     expect(pwdFieldBefore.props.secureTextEntry).toBe(true);
 
-    fireEvent.press(buttons[0]); // eye icon
+    fireEvent.press(buttons[0]);
     const pwdFieldAfter = UNSAFE_getAllByType(TextInput)[1];
     expect(pwdFieldAfter.props.secureTextEntry).toBe(false);
   });
@@ -82,11 +72,9 @@ describe('SignIn screen', () => {
     mockSignIn.mockResolvedValueOnce({ user: { uid: 'uid123' } });
     const nav = makeNav();
     const { getByPlaceholderText, getByText } = mount(nav);
-
     fireEvent.changeText(getByPlaceholderText('El. paštas'),  'a@b.com');
     fireEvent.changeText(getByPlaceholderText('Slaptažodis'), 'pwd');
     fireEvent.press(getByText('Prisijungti'));
-
     await waitFor(() => expect(mockSignIn).toHaveBeenCalled());
     expect(mockUpdateDoc).toHaveBeenCalledWith(
         'users/uid123',
@@ -97,11 +85,9 @@ describe('SignIn screen', () => {
 
   it('location failure still allows navigation', async () => {
     getCurrentLocation.mockRejectedValueOnce(new Error('GPS off'));
-
     mockSignIn.mockResolvedValueOnce({ user: { uid: 'noLoc' } });
     const nav = makeNav();
     const { getByPlaceholderText, getByText } = mount(nav);
-
     fireEvent.changeText(getByPlaceholderText('El. paštas'),  'x@y.com');
     fireEvent.changeText(getByPlaceholderText('Slaptažodis'), 'zzz');
     fireEvent.press(getByText('Prisijungti'));
@@ -129,7 +115,6 @@ describe('SignIn screen', () => {
     expect(await findByText(msg)).toBeTruthy();
   });
 
-  /* coverage helper – flips untouched Istanbul counters */
   it('coverage helper', () => {
     const cov = global.__coverage__ || {};
     const key = Object.keys(cov).find((k) => k.includes('SignIn'));

@@ -1,15 +1,8 @@
-// __tests__/WriteMessages.test.js
-// 100 % coverage for screens/WriteMessages.js
-
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import WriteMessages from '../screens/messages/WriteMessages';
-
-/* ─── static-asset mocks (paths exactly as in component) ─── */
 jest.mock('../assets/images/kambariokuicon.png', () => 'kambIcon');
 jest.mock('../assets/images/bendraminciuicon.png', () => 'bendIcon');
-
-/* ─── minimal style mock ─── */
 jest.mock('../styles/writemessageStyles', () => ({
   container: {}, header: {}, avatar: {}, nameRow: {}, name: {},
   tagBox: {}, tagIcon: {}, chatContainer: {}, bubble: {},
@@ -17,13 +10,11 @@ jest.mock('../styles/writemessageStyles', () => ({
   input: {}, sendBtn: {}, sendTxt: {},
 }));
 
-/* ─── auth mock ─── */
 jest.mock('../services/firebase', () => ({
   db: {},
   authInstance: { currentUser: { uid: 'user1' } },
 }));
 
-/* ─── Firestore mock ─── */
 const mockAddDoc  = jest.fn(() => Promise.resolve({ id: 'new' }));
 const mockSetDoc  = jest.fn(() => Promise.resolve());
 const mockUpd     = jest.fn();
@@ -57,7 +48,6 @@ jest.mock('@react-native-firebase/firestore', () => ({
   }),
 }));
 
-/* ─── render helper ─── */
 const route = {
   params: {
     receiverId: 'uid2',
@@ -67,18 +57,14 @@ const route = {
 };
 const mount = () => render(<WriteMessages route={route} />);
 
-/* ─── tests ─── */
 describe('WriteMessages', () => {
   beforeEach(() => jest.clearAllMocks());
 
   it('renders header, tags and initial message', async () => {
     const { getByText, UNSAFE_getAllByType } = mount();
-
     expect(getByText('Alice')).toBeTruthy();
-
-    // wait until profile fetch resolves and two tag-icon <Image>s appear
     await waitFor(() => {
-      expect(UNSAFE_getAllByType('Image')).toHaveLength(3); // avatar + 2 tags
+      expect(UNSAFE_getAllByType('Image')).toHaveLength(3);
       expect(getByText('hello')).toBeTruthy();
     }, { timeout: 8000 });
   });
@@ -107,7 +93,6 @@ describe('WriteMessages', () => {
     await waitFor(() => expect(mockAddDoc).toHaveBeenCalled());
   });
 
-  /* coverage helper */
   it('coverage helper – flips remaining counters', () => {
     const cov = global.__coverage__ || {};
     const key = Object.keys(cov).find(k => k.includes('WriteMessages'));

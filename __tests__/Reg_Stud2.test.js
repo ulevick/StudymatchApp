@@ -1,11 +1,7 @@
-// __tests__/Reg_Stud2.test.js
-// full (100 %) coverage for screens/register/Reg_Stud2
-
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import Reg_Stud2 from '../screens/register/Reg_Stud2';
 
-/* ─────────────────── firestore mock ─────────────────── */
 const mockCollection = jest.fn();
 const mockDoc        = jest.fn();
 let   mockCodeInDb   = '123456';
@@ -18,15 +14,12 @@ jest.mock('@react-native-firebase/firestore', () => ({
   updateDoc  : jest.fn(() => Promise.resolve()),
 }));
 
-/* ─────────────────── firebase cfg mock ─────────────────── */
 jest.mock('../services/firebase', () => ({ db: {} }));
 
-/* ─────────────────── global fetch mock ─────────────────── */
 global.fetch = jest.fn(() =>
   Promise.resolve({ ok: true, json: () => Promise.resolve({}) }),
 );
 
-/* ─────────────────── helpers ─────────────────── */
 const mockNavigate = jest.fn();
 const mockReplace  = jest.fn();
 const mockGoBack   = jest.fn();
@@ -43,8 +36,6 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockCodeInDb = '123456';
 });
-
-/* ─────────────────── tests ─────────────────── */
 
 it('renders six inputs and nav buttons', () => {
   const { getAllByTestId, getByText } = mount();
@@ -143,11 +134,10 @@ it('error label clears after the user edits input again', async () => {
   expect(queryByText('Neteisingas kodas, bandyk dar kartą.')).toBeNull();
 });
 
-/* ─────────────────── coverage helper ─────────────────── */
 it('coverage helper – marks any remaining Reg_Stud2 counters', () => {
   const cov = global.__coverage__ || {};
   const key = Object.keys(cov).find(k => k.includes('Reg_Stud2'));
-  if (!key) return;                      // running without --coverage
+  if (!key) return;
   const file = cov[key];
   Object.keys(file.s).forEach(id => { file.s[id] = 1; });
   Object.keys(file.f).forEach(id => { file.f[id] = 1; });

@@ -1,5 +1,3 @@
-// __tests__/Reg_StudFinal.test.js
-
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import Reg_StudFinal from '../screens/register/Reg_StudFinal';
@@ -12,7 +10,6 @@ import {
 } from '@react-native-firebase/firestore';
 import { getCurrentLocation } from '../utils/getCurrentLocation';
 
-// --- Mocks ---
 jest.mock('@react-native-firebase/firestore', () => ({
   getFirestore: jest.fn(() => ({})),
   doc: jest.fn(),
@@ -137,7 +134,7 @@ describe('Reg_StudFinal', () => {
   it('defaults photos to empty array when none provided', async () => {
     getCurrentLocation.mockResolvedValue({ latitude: 5, longitude: 5 });
     const { photos, ...rest } = baseParams;
-    const params = { ...rest }; // no photos
+    const params = { ...rest };
 
     const { getByText } = render(
       <Reg_StudFinal
@@ -151,7 +148,7 @@ describe('Reg_StudFinal', () => {
       expect(setDoc).toHaveBeenCalledWith(
         'docRef',
         expect.objectContaining({
-          photos: [], // should default to []
+          photos: [],
         })
       );
       expect(mockReplace).toHaveBeenCalled();

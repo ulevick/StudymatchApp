@@ -1,9 +1,7 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import Reg_Stud6 from '../screens/register/Reg_Stud6';
-import { GENDER_FEMALE, GENDER_MALE } from '../constants/gender';
-
-// Mock navigation
+import { GENDER_MALE } from '../constants/gender';
 const mockNavigate = jest.fn();
 const mockGoBack = jest.fn();
 
@@ -29,13 +27,9 @@ describe('Reg_Stud6', () => {
 
   it('renders instruction, gender options, and buttons', () => {
     const { getByText, getByPlaceholderText } = createComponent();
-
-    // Instruction
     expect(getByText('Kokia tavo lytis?')).toBeTruthy();
-    // Options
     expect(getByText('Moteris')).toBeTruthy();
     expect(getByText('Vyras')).toBeTruthy();
-    // Buttons
     expect(getByText('Atgal')).toBeTruthy();
     expect(getByText('Toliau')).toBeTruthy();
   });
@@ -50,11 +44,8 @@ describe('Reg_Stud6', () => {
     const { getByText, getByTestId } = createComponent();
     const femaleOption = getByText('Moteris');
     const nextButton = getByTestId('next-button');
-
     fireEvent.press(femaleOption);
     expect(nextButton).not.toBeDisabled();
-
-    // Selecting male also enables
     fireEvent.press(getByText('Vyras'));
     expect(nextButton).not.toBeDisabled();
   });
@@ -65,7 +56,6 @@ describe('Reg_Stud6', () => {
 
     fireEvent.press(maleOption);
     fireEvent.press(getByTestId('next-button'));
-
     expect(mockNavigate).toHaveBeenCalledWith('Reg_Stud7', {
       email: defaultRouteParams.email,
       password: defaultRouteParams.password,

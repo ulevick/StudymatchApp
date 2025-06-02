@@ -1,30 +1,19 @@
 import React from 'react';
-import {
-  TouchableOpacity,
-  ActivityIndicator,
-  Image,
-  Text,
-  View,
-} from 'react-native';
 import { render, fireEvent } from '@testing-library/react-native';
 import Profile from '../screens/profile/Profile';
 import { UserContext } from '../contexts/UserContext';
-import styles from '../styles/profileStyles';
 
-// Mock firebase service
 jest.mock('../services/firebase', () => ({
   authInstance: { currentUser: null },
   db: {},
 }));
 
-// Mock firestore imports
 jest.mock('@react-native-firebase/firestore', () => ({
   __esModule: true,
   doc: jest.fn(),
   onSnapshot: jest.fn(),
 }));
 
-// Mock icons, header, footer
 jest.mock('react-native-vector-icons/Ionicons', () => ({
   __esModule: true,
   default: jest.fn(() => null),
@@ -163,25 +152,20 @@ describe('Profile', () => {
       </UserContext.Provider>
     );
 
-    // Age
     expect(getByText('Z, 1')).toBeTruthy();
 
-    // Progress bar
     const dots = getAllByTestId('progress-dot');
     expect(dots).toHaveLength(3);
 
-    // Initial photo & cycle
     expect(getByTestId('user-photo').props.source).toEqual({ uri: 'p1' });
     fireEvent.press(getByTestId('photo-button'));
     expect(getByTestId('user-photo').props.source).toEqual({ uri: 'p2' });
 
-    // Header callback
     const HeaderMock = require('../components/Header').default;
     const { onFilterPress } = HeaderMock.mock.calls[0][0];
     onFilterPress();
     expect(navigation.navigate).toHaveBeenCalledWith('Filter');
 
-    // Footer callback
     const FooterMock = require('../components/Footer').default;
     const { onTabPress } = FooterMock.mock.calls[0][0];
     onTabPress('home');

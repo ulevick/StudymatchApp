@@ -2,7 +2,6 @@ import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import Reg_Stud3 from '../screens/register/Reg_Stud3';
 
-// Mock navigation
 const mockNavigate = jest.fn();
 const mockGoBack = jest.fn();
 
