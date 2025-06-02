@@ -141,7 +141,7 @@ const SignIn = ({ navigation }) => {
                 </View>
             </Animated.View>
 
-            {errorMsg !== '' && <Text style={authStyles.errorText}>{errorMsg}</Text>}
+            {errorMsg !== '' && <Text testID="login-error" style={authStyles.errorText}>{errorMsg}</Text>}
 
             <Text style={authStyles.forgot}>Pamiršai slaptažodį?</Text>
 
