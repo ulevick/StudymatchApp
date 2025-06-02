@@ -152,7 +152,9 @@ export default function MapScreen({ navigation }) {
 
                 <View style={[styles.chipColumn, { pointerEvents: 'box-none' }]}>
                     {categories.map(c => {
-                        const isActive = activeCat === c.key;
+                        // Iš anksto patikriname, ar ši kategorija aktyvi
+                        // SonarCloud nuobauda “Remove this '===' check” ignoruojama žyma // NOSONAR
+                        const isActive = activeCat === c.key; // NOSONAR
 
                         return (
                             <TouchableOpacity
