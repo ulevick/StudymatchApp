@@ -151,31 +151,35 @@ export default function MapScreen({ navigation }) {
                 />
 
                 <View style={[styles.chipColumn, { pointerEvents: 'box-none' }]}>
-                    {categories.map(c => (
-                        <TouchableOpacity
-                            key={c.key}
-                            style={[
-                                styles.chip,
-                                {
-                                    borderColor: c.color,
-                                    backgroundColor: activeCat === c.key ? c.color : '#fff',
-                                },
-                            ]}
-                            onPress={() => setActiveCat(activeCat === c.key ? null : c.key)}
-                        >
-                            <Icon
-                                name={c.icon}
-                                size={14}
-                                color={activeCat === c.key ? '#fff' : c.color}
-                            />
-                            <Text style={[
-                                styles.chipLabel,
-                                { color: activeCat === c.key ? '#fff' : '#333' }
-                            ]}>
-                                {c.label}
-                            </Text>
-                        </TouchableOpacity>
-                    ))}
+                    {categories.map(c => {
+                        const isActive = activeCat === c.key;
+
+                        return (
+                            <TouchableOpacity
+                                key={c.key}
+                                style={[
+                                    styles.chip,
+                                    {
+                                        borderColor: c.color,
+                                        backgroundColor: isActive ? c.color : '#fff',
+                                    },
+                                ]}
+                                onPress={() => setActiveCat(isActive ? null : c.key)}
+                            >
+                                <Icon
+                                    name={c.icon}
+                                    size={14}
+                                    color={isActive ? '#fff' : c.color}
+                                />
+                                <Text style={[
+                                    styles.chipLabel,
+                                    { color: isActive ? '#fff' : '#333' },
+                                ]}>
+                                    {c.label}
+                                </Text>
+                            </TouchableOpacity>
+                        );
+                    })}
                 </View>
 
                 <MapView
