@@ -24,10 +24,7 @@ import global       from '../../styles/global';
 import registration from '../../styles/registration';
 import BackgroundReg1_2 from '../../components/BackgroundReg1_2';
 import emailjs from '@emailjs/react-native';
-const EMAILJS_SERVICE_ID  = 'service_8824iop';
-const EMAILJS_TEMPLATE_ID = 'template_y5eby3u';
-const EMAILJS_PUBLIC_KEY  = '8r2vK_8mZ3gELdosc';
-
+import {EMAILJS_PUBLIC_KEY, EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID } from '@env';
 const Reg_Stud1 = ({ route = {}, navigation }) => {
     const IS_DETOX = global.detox;
     const {
