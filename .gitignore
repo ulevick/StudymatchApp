@@ -73,6 +73,3 @@ vendor/bundle/
 
 # Jei naudojate Base64 koduotę vietoj JSON
 /e2e/serviceAccountKey.b64
-
-# Dotenv su visais slaptais raktas
-.env
